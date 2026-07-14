@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/criblio/terraform-provider-criblio/internal/restclient"
+	custom_stringplanmodifier "github.com/criblio/terraform-provider-criblio/internal/tfplanmodifiers/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework-jsontypes/jsontypes"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -40,20 +41,48 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Monitor Resource",
 		Attributes: map[string]schema.Attribute{
+			"dataset_id": schema.StringAttribute{
+				Required: false,
+				Optional: true,
+				Computed: false,
+			},
 			"description": schema.StringAttribute{
 				Required: false,
 				Optional: true,
 				Computed: false,
+			},
+			"detection_config": schema.StringAttribute{
+				Required:    false,
+				Optional:    true,
+				Computed:    true,
+				Description: `Detection configuration as JSON.`,
+				CustomType:  jsontypes.NormalizedType{},
 			},
 			"enabled": schema.BoolAttribute{
 				Required: true,
 				Optional: false,
 				Computed: false,
 			},
-			"firing_after": schema.Float64Attribute{
-				Required: true,
-				Optional: false,
-				Computed: false,
+			"expr": schema.StringAttribute{
+				Required:    false,
+				Optional:    true,
+				Computed:    false,
+				Description: `Expression transformations as JSON. Use jsonencode([...]).`,
+				CustomType:  jsontypes.NormalizedType{},
+			},
+			"firing_condition": schema.StringAttribute{
+				Required:    false,
+				Optional:    true,
+				Computed:    false,
+				Description: `Firing condition as JSON. Use jsonencode({ fire_delay = N, clear_delay = M }).`,
+				CustomType:  jsontypes.NormalizedType{},
+			},
+			"firing_rule": schema.StringAttribute{
+				Required:    false,
+				Optional:    true,
+				Computed:    false,
+				Description: `Firing rule as JSON.`,
+				CustomType:  jsontypes.NormalizedType{},
 			},
 			"id": schema.StringAttribute{
 				Required: true,
@@ -61,204 +90,71 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed: false,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplaceIfConfigured(),
+					custom_stringplanmodifier.SuppressDiff(custom_stringplanmodifier.ExplicitSuppress),
 				},
-			},
-			"is_default": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-				Computed: false,
 			},
 			"managed_by": schema.StringAttribute{
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
-				Description: `Identifies the external provisioner (e.g. 'terraform') that owns this monitor. Stamped by the backend when the Terraform provider User-Agent is detected. Read-only from the UI.`,
+				Description: `Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133).`,
+			},
+			"metadata": schema.StringAttribute{
+				Required:    false,
+				Optional:    true,
+				Computed:    false,
+				Description: `Metadata as JSON. Use jsonencode({}).`,
+				CustomType:  jsontypes.NormalizedType{},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
 				Optional: false,
 				Computed: false,
 			},
-			"notification_policies": schema.ListAttribute{
+			"notification": schema.StringAttribute{
 				Required:    false,
 				Optional:    true,
 				Computed:    false,
-				ElementType: types.StringType,
+				Description: `Notification config as JSON.`,
+				CustomType:  jsontypes.NormalizedType{},
 			},
-			"notifications_enabled": schema.BoolAttribute{
+			"priority": schema.StringAttribute{
+				Required:    false,
+				Optional:    true,
+				Computed:    false,
+				Description: `Priority config as JSON. Use jsonencode({ value = "P1" }).`,
+				CustomType:  jsontypes.NormalizedType{},
+			},
+			"query": schema.StringAttribute{
+				Required:    false,
+				Optional:    true,
+				Computed:    false,
+				Description: `Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).`,
+				CustomType:  jsontypes.NormalizedType{},
+			},
+			"silence": schema.ListAttribute{
+				Required:    false,
+				Optional:    true,
+				Computed:    false,
+				Description: `List of silence rules.`,
+				ElementType: jsontypes.NormalizedType{},
+			},
+			"team": schema.StringAttribute{
+				Required:    false,
+				Optional:    true,
+				Computed:    false,
+				Description: `Team config as JSON. Use jsonencode({ value = "<team-name>" }).`,
+				CustomType:  jsontypes.NormalizedType{},
+			},
+			"type": schema.StringAttribute{
 				Required: false,
 				Optional: true,
 				Computed: false,
 			},
-			"ok_after": schema.Float64Attribute{
-				Required: true,
-				Optional: false,
-				Computed: false,
-			},
-			"params": schema.MapAttribute{
-				Required:    true,
-				Optional:    false,
-				Computed:    false,
-				ElementType: types.StringType,
-			},
-			"product": schema.StringAttribute{
-				Required: true,
-				Optional: false,
-				Computed: false,
-			},
-			"rules": schema.ListNestedAttribute{
-				Required: true,
-				Optional: false,
-				Computed: false,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"conditions": schema.ListNestedAttribute{
-							Required: true,
-							Optional: false,
-							Computed: false,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"condition": schema.StringAttribute{
-										Required: true,
-										Optional: false,
-										Computed: false,
-									},
-									"enabled": schema.BoolAttribute{
-										Required: true,
-										Optional: false,
-										Computed: false,
-									},
-									"labels": schema.MapAttribute{
-										Required:    true,
-										Optional:    false,
-										Computed:    false,
-										ElementType: types.StringType,
-									},
-								},
-							},
-						},
-						"excluded_tags": schema.MapAttribute{
-							Required:    true,
-							Optional:    false,
-							Computed:    false,
-							ElementType: types.StringType,
-						},
-						"included_tags": schema.MapAttribute{
-							Required:    true,
-							Optional:    false,
-							Computed:    false,
-							ElementType: types.StringType,
-						},
-						"name": schema.StringAttribute{
-							Required: true,
-							Optional: false,
-							Computed: false,
-						},
-						"show_on_chart": schema.BoolAttribute{
-							Required: true,
-							Optional: false,
-							Computed: false,
-						},
-					},
-				},
-			},
-			"schedule_interval_seconds": schema.Float64Attribute{
-				Required: true,
-				Optional: false,
-				Computed: false,
-			},
-			"silences": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Computed:    false,
-				ElementType: types.StringType,
-			},
-			"sql_override": schema.SingleNestedAttribute{
+			"unit": schema.StringAttribute{
 				Required: false,
 				Optional: true,
-				Computed: false,
-				Attributes: map[string]schema.Attribute{
-					"instant": schema.StringAttribute{
-						Required: true,
-						Optional: false,
-						Computed: false,
-					},
-					"range": schema.StringAttribute{
-						Required: true,
-						Optional: false,
-						Computed: false,
-					},
-				},
-			},
-
-			"monitor_query": schema.SingleNestedAttribute{
-				Optional: true,
-				Attributes: map[string]schema.Attribute{
-					"label_filters": schema.ListNestedAttribute{
-						Required: true,
-						Optional: false,
-						Computed: false,
-						NestedObject: schema.NestedAttributeObject{
-							Attributes: map[string]schema.Attribute{
-								"label": schema.StringAttribute{
-									Required: true,
-									Optional: false,
-									Computed: false,
-								},
-								"operator": schema.StringAttribute{
-									Required: true,
-									Optional: false,
-									Computed: false,
-								},
-								"value": schema.StringAttribute{
-									Required: true,
-									Optional: false,
-									Computed: false,
-								},
-							},
-						},
-					},
-					"metric_name": schema.StringAttribute{
-						Required: true,
-						Optional: false,
-						Computed: false,
-					},
-					"operation": schema.SingleNestedAttribute{
-						Required: true,
-						Optional: false,
-						Computed: false,
-						Attributes: map[string]schema.Attribute{
-							"by_without_clause": schema.SingleNestedAttribute{
-								Required: false,
-								Optional: true,
-								Computed: false,
-								Attributes: map[string]schema.Attribute{
-									"operator": schema.StringAttribute{
-										Required: true,
-										Optional: false,
-										Computed: false,
-									},
-									"parameters": schema.ListAttribute{
-										Required:    true,
-										Optional:    false,
-										Computed:    false,
-										ElementType: types.StringType,
-									},
-								},
-							},
-							"operation": schema.StringAttribute{
-								Required: true,
-								Optional: false,
-								Computed: false,
-							},
-						},
-					},
-					"time_range": schema.StringAttribute{
-						Required: true,
-						Optional: false,
-						Computed: false,
-					},
-				},
+				Computed: true,
 			},
 		},
 	}
@@ -367,25 +263,7 @@ func isMonitorImportState(state *MonitorModel) bool {
 	if state.Enabled.IsNull() || state.Enabled.IsUnknown() {
 		return true
 	}
-	if state.FiringAfter.IsNull() || state.FiringAfter.IsUnknown() {
-		return true
-	}
 	if state.Name.IsNull() || state.Name.IsUnknown() {
-		return true
-	}
-	if state.OkAfter.IsNull() || state.OkAfter.IsUnknown() {
-		return true
-	}
-	if state.Params.IsNull() || state.Params.IsUnknown() {
-		return true
-	}
-	if state.Product.IsNull() || state.Product.IsUnknown() {
-		return true
-	}
-	if state.Rules.IsNull() || state.Rules.IsUnknown() {
-		return true
-	}
-	if state.ScheduleIntervalSeconds.IsNull() || state.ScheduleIntervalSeconds.IsUnknown() {
 		return true
 	}
 	return false
@@ -395,19 +273,40 @@ func applyMonitorAPIToState(api *MonitorModel, state *MonitorModel, preserveInpu
 	if api == nil || state == nil {
 		return
 	}
+	if !preserveInputs || (fillMissingInputs && (state.DatasetID.IsNull() || state.DatasetID.IsUnknown())) {
+		if !api.DatasetID.IsNull() && !api.DatasetID.IsUnknown() {
+			state.DatasetID = api.DatasetID
+		}
+	}
 	if !preserveInputs || (fillMissingInputs && (state.Description.IsNull() || state.Description.IsUnknown())) {
 		if !api.Description.IsNull() && !api.Description.IsUnknown() {
 			state.Description = api.Description
 		}
+	}
+	if !api.DetectionConfig.IsNull() && !api.DetectionConfig.IsUnknown() {
+		state.DetectionConfig = api.DetectionConfig
+	}
+	if state.DetectionConfig.IsUnknown() {
+		state.DetectionConfig = jsontypes.NewNormalizedNull()
 	}
 	if !preserveInputs || (fillMissingInputs && (state.Enabled.IsNull() || state.Enabled.IsUnknown())) {
 		if !api.Enabled.IsNull() && !api.Enabled.IsUnknown() {
 			state.Enabled = api.Enabled
 		}
 	}
-	if !preserveInputs || (fillMissingInputs && (state.FiringAfter.IsNull() || state.FiringAfter.IsUnknown())) {
-		if !api.FiringAfter.IsNull() && !api.FiringAfter.IsUnknown() {
-			state.FiringAfter = api.FiringAfter
+	if !preserveInputs || (fillMissingInputs && (state.Expr.IsNull() || state.Expr.IsUnknown())) {
+		if !api.Expr.IsNull() && !api.Expr.IsUnknown() {
+			state.Expr = api.Expr
+		}
+	}
+	if !preserveInputs || (fillMissingInputs && (state.FiringCondition.IsNull() || state.FiringCondition.IsUnknown())) {
+		if !api.FiringCondition.IsNull() && !api.FiringCondition.IsUnknown() {
+			state.FiringCondition = api.FiringCondition
+		}
+	}
+	if !preserveInputs || (fillMissingInputs && (state.FiringRule.IsNull() || state.FiringRule.IsUnknown())) {
+		if !api.FiringRule.IsNull() && !api.FiringRule.IsUnknown() {
+			state.FiringRule = api.FiringRule
 		}
 	}
 	if !preserveInputs || (fillMissingInputs && (state.ID.IsNull() || state.ID.IsUnknown())) {
@@ -415,111 +314,59 @@ func applyMonitorAPIToState(api *MonitorModel, state *MonitorModel, preserveInpu
 			state.ID = api.ID
 		}
 	}
-	if !preserveInputs || (fillMissingInputs && (state.IsDefault.IsNull() || state.IsDefault.IsUnknown())) {
-		if !api.IsDefault.IsNull() && !api.IsDefault.IsUnknown() {
-			state.IsDefault = api.IsDefault
-		}
-	}
 	if !api.ManagedBy.IsNull() && !api.ManagedBy.IsUnknown() {
 		state.ManagedBy = api.ManagedBy
 	} else if state.ManagedBy.IsNull() || state.ManagedBy.IsUnknown() {
 		state.ManagedBy = types.StringValue("")
+	}
+	if !preserveInputs || (fillMissingInputs && (state.Metadata.IsNull() || state.Metadata.IsUnknown())) {
+		if !api.Metadata.IsNull() && !api.Metadata.IsUnknown() {
+			state.Metadata = api.Metadata
+		}
 	}
 	if !preserveInputs || (fillMissingInputs && (state.Name.IsNull() || state.Name.IsUnknown())) {
 		if !api.Name.IsNull() && !api.Name.IsUnknown() {
 			state.Name = api.Name
 		}
 	}
-	if !preserveInputs || (fillMissingInputs && (state.NotificationPolicies.IsNull() || state.NotificationPolicies.IsUnknown())) {
-		if !api.NotificationPolicies.IsNull() && !api.NotificationPolicies.IsUnknown() {
-			state.NotificationPolicies = api.NotificationPolicies
+	if !preserveInputs || (fillMissingInputs && (state.Notification.IsNull() || state.Notification.IsUnknown())) {
+		if !api.Notification.IsNull() && !api.Notification.IsUnknown() {
+			state.Notification = api.Notification
 		}
 	}
-	if elementType := state.NotificationPolicies.ElementType(context.Background()); elementType == nil {
-		state.NotificationPolicies = types.ListNull(types.StringType)
-	}
-	if !preserveInputs || (fillMissingInputs && (state.NotificationsEnabled.IsNull() || state.NotificationsEnabled.IsUnknown())) {
-		if !api.NotificationsEnabled.IsNull() && !api.NotificationsEnabled.IsUnknown() {
-			state.NotificationsEnabled = api.NotificationsEnabled
+	if !preserveInputs || (fillMissingInputs && (state.Priority.IsNull() || state.Priority.IsUnknown())) {
+		if !api.Priority.IsNull() && !api.Priority.IsUnknown() {
+			state.Priority = api.Priority
 		}
 	}
-	if !preserveInputs || (fillMissingInputs && (state.OkAfter.IsNull() || state.OkAfter.IsUnknown())) {
-		if !api.OkAfter.IsNull() && !api.OkAfter.IsUnknown() {
-			state.OkAfter = api.OkAfter
+	if !preserveInputs || (fillMissingInputs && (state.Query.IsNull() || state.Query.IsUnknown())) {
+		if !api.Query.IsNull() && !api.Query.IsUnknown() {
+			state.Query = api.Query
 		}
 	}
-	if !preserveInputs || (fillMissingInputs && (state.Params.IsNull() || state.Params.IsUnknown())) {
-		if !api.Params.IsNull() && !api.Params.IsUnknown() {
-			state.Params = api.Params
+	if !preserveInputs || (fillMissingInputs && (state.Silence.IsNull() || state.Silence.IsUnknown())) {
+		if !api.Silence.IsNull() && !api.Silence.IsUnknown() {
+			state.Silence = api.Silence
 		}
 	}
-	if state.Params.IsNull() || state.Params.IsUnknown() {
-		state.Params = types.MapNull(types.StringType)
-	} else if elementType := state.Params.ElementType(context.Background()); elementType == nil || !elementType.Equal(types.StringType) {
-		if len(state.Params.Elements()) == 0 {
-			state.Params = types.MapNull(types.StringType)
+	if elementType := state.Silence.ElementType(context.Background()); elementType == nil {
+		state.Silence = types.ListNull(jsontypes.NormalizedType{})
+	}
+	if !preserveInputs || (fillMissingInputs && (state.Team.IsNull() || state.Team.IsUnknown())) {
+		if !api.Team.IsNull() && !api.Team.IsUnknown() {
+			state.Team = api.Team
 		}
 	}
-	if !preserveInputs || (fillMissingInputs && (state.Product.IsNull() || state.Product.IsUnknown())) {
-		if !api.Product.IsNull() && !api.Product.IsUnknown() {
-			state.Product = api.Product
+	if !preserveInputs || (fillMissingInputs && (state.Type.IsNull() || state.Type.IsUnknown())) {
+		if !api.Type.IsNull() && !api.Type.IsUnknown() {
+			state.Type = api.Type
 		}
 	}
-	if !preserveInputs || (fillMissingInputs && (state.Rules.IsNull() || state.Rules.IsUnknown())) || (!api.Rules.IsNull() && !api.Rules.IsUnknown() && !state.Rules.IsNull() && !state.Rules.IsUnknown() && len(state.Rules.Elements()) == 0) {
-		if !api.Rules.IsNull() && !api.Rules.IsUnknown() {
-			state.Rules = api.Rules
-		}
+	if !api.Unit.IsNull() && !api.Unit.IsUnknown() {
+		state.Unit = api.Unit
 	}
-	if state.Rules.IsNull() || state.Rules.IsUnknown() {
-		state.Rules = types.ListNull(types.ObjectType{AttrTypes: MonitorRulesAttrTypes()})
-	} else if len(state.Rules.Elements()) == 0 {
-		state.Rules = types.ListValueMust(types.ObjectType{AttrTypes: MonitorRulesAttrTypes()}, nil)
-	}
-	if !preserveInputs || (fillMissingInputs && (state.ScheduleIntervalSeconds.IsNull() || state.ScheduleIntervalSeconds.IsUnknown())) {
-		if !api.ScheduleIntervalSeconds.IsNull() && !api.ScheduleIntervalSeconds.IsUnknown() {
-			state.ScheduleIntervalSeconds = api.ScheduleIntervalSeconds
-		}
-	}
-	if !preserveInputs || (fillMissingInputs && (state.Silences.IsNull() || state.Silences.IsUnknown())) {
-		if !api.Silences.IsNull() && !api.Silences.IsUnknown() {
-			state.Silences = api.Silences
-		}
-	}
-	if elementType := state.Silences.ElementType(context.Background()); elementType == nil {
-		state.Silences = types.ListNull(types.StringType)
-	}
-	if !preserveInputs || (fillMissingInputs && (state.SqlOverride.IsNull() || state.SqlOverride.IsUnknown())) {
-		if !api.SqlOverride.IsNull() && !api.SqlOverride.IsUnknown() {
-			state.SqlOverride = api.SqlOverride
-		}
-	}
-	if len(state.SqlOverride.AttributeTypes(context.Background())) == 0 {
-		state.SqlOverride = types.ObjectNull(MonitorSqlOverrideAttrTypes())
-	}
-	if api.MonitorQuery != nil {
-		if state.MonitorQuery == nil {
-			state.MonitorQuery = &MonitorQueryModel{}
-		}
-		if !api.MonitorQuery.LabelFilters.IsNull() && !api.MonitorQuery.LabelFilters.IsUnknown() {
-			state.MonitorQuery.LabelFilters = api.MonitorQuery.LabelFilters
-		} else if state.MonitorQuery.LabelFilters.IsNull() || state.MonitorQuery.LabelFilters.IsUnknown() {
-			state.MonitorQuery.LabelFilters = types.ListNull(types.ObjectType{AttrTypes: MonitorQueryLabelFiltersAttrTypes()})
-		}
-		if !api.MonitorQuery.MetricName.IsNull() && !api.MonitorQuery.MetricName.IsUnknown() {
-			state.MonitorQuery.MetricName = api.MonitorQuery.MetricName
-		} else if state.MonitorQuery.MetricName.IsNull() || state.MonitorQuery.MetricName.IsUnknown() {
-			state.MonitorQuery.MetricName = types.StringNull()
-		}
-		if !api.MonitorQuery.Operation.IsNull() && !api.MonitorQuery.Operation.IsUnknown() {
-			state.MonitorQuery.Operation = api.MonitorQuery.Operation
-		} else if state.MonitorQuery.Operation.IsNull() || state.MonitorQuery.Operation.IsUnknown() {
-			state.MonitorQuery.Operation = types.ObjectNull(MonitorQueryOperationAttrTypes())
-		}
-		if !api.MonitorQuery.TimeRange.IsNull() && !api.MonitorQuery.TimeRange.IsUnknown() {
-			state.MonitorQuery.TimeRange = api.MonitorQuery.TimeRange
-		} else if state.MonitorQuery.TimeRange.IsNull() || state.MonitorQuery.TimeRange.IsUnknown() {
-			state.MonitorQuery.TimeRange = types.StringNull()
-		}
+	if state.Unit.IsUnknown() {
+		state.Unit = types.StringNull()
 	}
 }
 

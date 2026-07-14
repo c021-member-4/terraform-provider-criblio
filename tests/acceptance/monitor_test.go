@@ -32,7 +32,8 @@ func TestAccMonitor(t *testing.T) {
 						resource.TestCheckResourceAttr(resourceName, "id", id),
 						resource.TestCheckResourceAttr(resourceName, "name", "Terraform Monitor Test"),
 						resource.TestCheckResourceAttr(resourceName, "enabled", "true"),
-						resource.TestCheckResourceAttr(resourceName, "product", "stream"),
+						resource.TestCheckResourceAttr(resourceName, "type", "threshold"),
+						resource.TestCheckResourceAttr(resourceName, "dataset_id", "metrics"),
 
 						// managed_by is computed and stamped by the backend when the
 						// Terraform provider User-Agent is detected.
@@ -83,37 +84,49 @@ func TestAccMonitor(t *testing.T) {
 }
 
 // monitorConfig returns a Terraform configuration for a criblio_monitor resource
-// using the MonitorConf schema (SI monitors on the /products/aetos/monitors endpoint).
+// using the IAetosMonitorConf schema (/products/aetos/monitors Aetos endpoint).
 func monitorConfig(id, name string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "criblio_monitor" "test" {
-  id                        = %q
-  name                      = %q
-  enabled                   = %v
-  product                   = "stream"
-  firing_after              = 300
-  ok_after                  = 300
-  schedule_interval_seconds = 60
-  params                    = {}
+  id         = %q
+  name       = %q
+  enabled    = %v
+  type       = "threshold"
+  dataset_id = "metrics"
 
-  rules = [
-    {
-      name          = "default"
-      show_on_chart = true
-      conditions    = []
-      included_tags = {}
-      excluded_tags = {}
-    }
-  ]
+  priority = jsonencode({ value = "P3" })
+  team     = jsonencode({ value = "platform" })
 
-  monitor_query {
-    metric_name  = "total_in_bytes"
-    time_range   = "1h"
-    label_filters = []
-    operation = {
-      operation = "sum"
+  query = jsonencode({
+    A = {
+      mode      = "promql"
+      datasetId = "metrics"
+      promql    = "up"
     }
-  }
+  })
+
+  expr = jsonencode([])
+
+  firing_condition = jsonencode({
+    fire_delay  = 300
+    clear_delay = 60
+  })
+
+  firing_rule = jsonencode({
+    label = ""
+    threshold = [{
+      severity       = "warning"
+      limit          = 0
+      operator       = "lt"
+      includedTags   = []
+      excludedTags   = []
+      timesTriggered = 1
+    }]
+  })
+
+  metadata     = jsonencode({})
+  notification = jsonencode({ enabled = false, type = "policy", config = [] })
+  silence      = []
 }
 
 data "criblio_monitor" "test" {
