@@ -14,21 +14,23 @@ Monitor Resource
 
 ```terraform
 resource "criblio_monitor" "example" {
+  dataset_id = "example"
   description = "example"
+  detection_config = "example"
   enabled = "example"
-  firing_after = "example"
+  expr = "example"
+  firing_condition = "example"
+  firing_rule = "example"
   id = "example"
-  is_default = "example"
+  metadata = "example"
   name = "example"
-  notification_policies = "example"
-  notifications_enabled = "example"
-  ok_after = "example"
-  params = "example"
-  product = "example"
-  rules = "example"
-  schedule_interval_seconds = "example"
-  silences = "example"
-  sql_override = "example"
+  notification = "example"
+  priority = "example"
+  query = "example"
+  silence = "example"
+  team = "example"
+  type = "example"
+  unit = "example"
 }
 ```
 
@@ -38,97 +40,29 @@ resource "criblio_monitor" "example" {
 ### Required
 
 - `enabled` (Boolean)
-- `firing_after` (Number)
 - `id` (String)
 - `name` (String)
-- `ok_after` (Number)
-- `params` (Map of String)
-- `product` (String)
-- `rules` (Attributes List) (see [below for nested schema](#nestedatt--rules))
-- `schedule_interval_seconds` (Number)
 
 ### Optional
 
+- `dataset_id` (String)
 - `description` (String)
-- `is_default` (Boolean)
-- `notification_policies` (List of String)
-- `notifications_enabled` (Boolean)
-- `silences` (List of String)
-- `sql_override` (Attributes) (see [below for nested schema](#nestedatt--sql_override))
+- `detection_config` (String) Detection configuration as JSON.
+- `expr` (String) Expression transformations as JSON. Use jsonencode([...]).
+- `firing_condition` (String) Firing condition as JSON. Use jsonencode({ fire_delay = N, clear_delay = M }).
+- `firing_rule` (String) Firing rule as JSON.
+- `metadata` (String) Metadata as JSON. Use jsonencode({}).
+- `notification` (String) Notification config as JSON.
+- `priority` (String) Priority config as JSON. Use jsonencode({ value = "P1" }).
+- `query` (String) Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).
+- `silence` (List of String) List of silence rules.
+- `team` (String) Team config as JSON. Use jsonencode({ value = "<team-name>" }).
+- `type` (String)
+- `unit` (String)
 
 ### Read-Only
 
-- `managed_by` (String) Identifies the external provisioner (e.g. 'terraform') that owns this monitor. Stamped by the backend when the Terraform provider User-Agent is detected. Read-only from the UI.
-
-### Optional
-
-- `monitor_query` (Attributes) (see [below for nested schema](#nestedatt--monitor_query))
-
-<a id="nestedatt--monitor_query"></a>
-### Nested Schema for `monitor_query`
-
-Required:
-
-- `label_filters` (Attributes List) (see [below for nested schema](#nestedatt--monitor_query--label_filters))
-- `metric_name` (String)
-- `operation` (Attributes) (see [below for nested schema](#nestedatt--monitor_query--operation))
-- `time_range` (String)
-
-<a id="nestedatt--rules"></a>
-### Nested Schema for `rules`
-
-Required:
-
-- `conditions` (Attributes List) (see [below for nested schema](#nestedatt--rules--conditions))
-- `excluded_tags` (Map of String)
-- `included_tags` (Map of String)
-- `name` (String)
-- `show_on_chart` (Boolean)
-
-<a id="nestedatt--rules--conditions"></a>
-### Nested Schema for `rules.conditions`
-
-Required:
-
-- `condition` (String)
-- `enabled` (Boolean)
-- `labels` (Map of String)
-
-<a id="nestedatt--sql_override"></a>
-### Nested Schema for `sql_override`
-
-Required:
-
-- `instant` (String)
-- `range` (String)
-
-<a id="nestedatt--monitor_query--label_filters"></a>
-### Nested Schema for `monitor_query.label_filters`
-
-Required:
-
-- `label` (String)
-- `operator` (String)
-- `value` (String)
-
-<a id="nestedatt--monitor_query--operation"></a>
-### Nested Schema for `monitor_query.operation`
-
-Required:
-
-- `operation` (String)
-
-Optional:
-
-- `by_without_clause` (Attributes) (see [below for nested schema](#nestedatt--monitor_query--operation--by_without_clause))
-
-<a id="nestedatt--monitor_query--operation--by_without_clause"></a>
-### Nested Schema for `monitor_query.operation.by_without_clause`
-
-Required:
-
-- `operator` (String)
-- `parameters` (List of String)
+- `managed_by` (String) Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133).
 
 ## Import
 

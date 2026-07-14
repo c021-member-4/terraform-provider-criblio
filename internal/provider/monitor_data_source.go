@@ -35,148 +35,80 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Monitor Data Source",
 		Attributes: map[string]schema.Attribute{
+			"dataset_id": schema.StringAttribute{
+				Computed: true,
+			},
 			"description": schema.StringAttribute{
 				Computed: true,
+			},
+			"detection_config": schema.StringAttribute{
+				Computed:    true,
+				Description: `Detection configuration as JSON.`,
+				CustomType:  jsontypes.NormalizedType{},
 			},
 			"enabled": schema.BoolAttribute{
 				Computed: true,
 			},
-			"firing_after": schema.Float64Attribute{
-				Computed: true,
+			"expr": schema.StringAttribute{
+				Computed:    true,
+				Description: `Expression transformations as JSON. Use jsonencode([...]).`,
+				CustomType:  jsontypes.NormalizedType{},
+			},
+			"firing_condition": schema.StringAttribute{
+				Computed:    true,
+				Description: `Firing condition as JSON. Use jsonencode({ fire_delay = N, clear_delay = M }).`,
+				CustomType:  jsontypes.NormalizedType{},
+			},
+			"firing_rule": schema.StringAttribute{
+				Computed:    true,
+				Description: `Firing rule as JSON.`,
+				CustomType:  jsontypes.NormalizedType{},
 			},
 			"id": schema.StringAttribute{
 				Required: true,
 			},
-			"is_default": schema.BoolAttribute{
-				Computed: true,
-			},
 			"managed_by": schema.StringAttribute{
 				Computed:    true,
-				Description: `Identifies the external provisioner (e.g. 'terraform') that owns this monitor. Stamped by the backend when the Terraform provider User-Agent is detected. Read-only from the UI.`,
+				Description: `Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133).`,
+			},
+			"metadata": schema.StringAttribute{
+				Computed:    true,
+				Description: `Metadata as JSON. Use jsonencode({}).`,
+				CustomType:  jsontypes.NormalizedType{},
 			},
 			"name": schema.StringAttribute{
 				Computed: true,
 			},
-			"notification_policies": schema.ListAttribute{
+			"notification": schema.StringAttribute{
 				Computed:    true,
-				ElementType: types.StringType,
+				Description: `Notification config as JSON.`,
+				CustomType:  jsontypes.NormalizedType{},
 			},
-			"notifications_enabled": schema.BoolAttribute{
-				Computed: true,
-			},
-			"ok_after": schema.Float64Attribute{
-				Computed: true,
-			},
-			"params": schema.MapAttribute{
+			"priority": schema.StringAttribute{
 				Computed:    true,
-				ElementType: types.StringType,
+				Description: `Priority config as JSON. Use jsonencode({ value = "P1" }).`,
+				CustomType:  jsontypes.NormalizedType{},
 			},
-			"product": schema.StringAttribute{
-				Computed: true,
-			},
-			"rules": schema.ListNestedAttribute{
-				Computed: true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"conditions": schema.ListNestedAttribute{
-							Computed: true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"condition": schema.StringAttribute{
-										Computed: true,
-									},
-									"enabled": schema.BoolAttribute{
-										Computed: true,
-									},
-									"labels": schema.MapAttribute{
-										Computed:    true,
-										ElementType: types.StringType,
-									},
-								},
-							},
-						},
-						"excluded_tags": schema.MapAttribute{
-							Computed:    true,
-							ElementType: types.StringType,
-						},
-						"included_tags": schema.MapAttribute{
-							Computed:    true,
-							ElementType: types.StringType,
-						},
-						"name": schema.StringAttribute{
-							Computed: true,
-						},
-						"show_on_chart": schema.BoolAttribute{
-							Computed: true,
-						},
-					},
-				},
-			},
-			"schedule_interval_seconds": schema.Float64Attribute{
-				Computed: true,
-			},
-			"silences": schema.ListAttribute{
+			"query": schema.StringAttribute{
 				Computed:    true,
-				ElementType: types.StringType,
+				Description: `Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).`,
+				CustomType:  jsontypes.NormalizedType{},
 			},
-			"sql_override": schema.SingleNestedAttribute{
-				Computed: true,
-				Attributes: map[string]schema.Attribute{
-					"instant": schema.StringAttribute{
-						Computed: true,
-					},
-					"range": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			"silence": schema.ListAttribute{
+				Computed:    true,
+				Description: `List of silence rules.`,
+				ElementType: jsontypes.NormalizedType{},
 			},
-
-			"monitor_query": schema.SingleNestedAttribute{
+			"team": schema.StringAttribute{
+				Computed:    true,
+				Description: `Team config as JSON. Use jsonencode({ value = "<team-name>" }).`,
+				CustomType:  jsontypes.NormalizedType{},
+			},
+			"type": schema.StringAttribute{
 				Computed: true,
-				Attributes: map[string]schema.Attribute{
-					"label_filters": schema.ListNestedAttribute{
-						Computed: true,
-						NestedObject: schema.NestedAttributeObject{
-							Attributes: map[string]schema.Attribute{
-								"label": schema.StringAttribute{
-									Computed: true,
-								},
-								"operator": schema.StringAttribute{
-									Computed: true,
-								},
-								"value": schema.StringAttribute{
-									Computed: true,
-								},
-							},
-						},
-					},
-					"metric_name": schema.StringAttribute{
-						Computed: true,
-					},
-					"operation": schema.SingleNestedAttribute{
-						Computed: true,
-						Attributes: map[string]schema.Attribute{
-							"by_without_clause": schema.SingleNestedAttribute{
-								Computed: true,
-								Attributes: map[string]schema.Attribute{
-									"operator": schema.StringAttribute{
-										Computed: true,
-									},
-									"parameters": schema.ListAttribute{
-										Computed:    true,
-										ElementType: types.StringType,
-									},
-								},
-							},
-							"operation": schema.StringAttribute{
-								Computed: true,
-							},
-						},
-					},
-					"time_range": schema.StringAttribute{
-						Computed: true,
-					},
-				},
+			},
+			"unit": schema.StringAttribute{
+				Computed: true,
 			},
 		},
 	}

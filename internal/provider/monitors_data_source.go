@@ -44,145 +44,80 @@ func (d *MonitorsDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"dataset_id": schema.StringAttribute{
+							Computed: true,
+						},
 						"description": schema.StringAttribute{
 							Computed: true,
+						},
+						"detection_config": schema.StringAttribute{
+							Computed:    true,
+							Description: `Detection configuration as JSON.`,
+							CustomType:  jsontypes.NormalizedType{},
 						},
 						"enabled": schema.BoolAttribute{
 							Computed: true,
 						},
-						"firing_after": schema.Float64Attribute{
-							Computed: true,
+						"expr": schema.StringAttribute{
+							Computed:    true,
+							Description: `Expression transformations as JSON. Use jsonencode([...]).`,
+							CustomType:  jsontypes.NormalizedType{},
+						},
+						"firing_condition": schema.StringAttribute{
+							Computed:    true,
+							Description: `Firing condition as JSON. Use jsonencode({ fire_delay = N, clear_delay = M }).`,
+							CustomType:  jsontypes.NormalizedType{},
+						},
+						"firing_rule": schema.StringAttribute{
+							Computed:    true,
+							Description: `Firing rule as JSON.`,
+							CustomType:  jsontypes.NormalizedType{},
 						},
 						"id": schema.StringAttribute{
 							Computed: true,
 						},
-						"is_default": schema.BoolAttribute{
-							Computed: true,
-						},
 						"managed_by": schema.StringAttribute{
 							Computed:    true,
-							Description: `Identifies the external provisioner (e.g. 'terraform') that owns this monitor. Stamped by the backend when the Terraform provider User-Agent is detected. Read-only from the UI.`,
+							Description: `Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133).`,
+						},
+						"metadata": schema.StringAttribute{
+							Computed:    true,
+							Description: `Metadata as JSON. Use jsonencode({}).`,
+							CustomType:  jsontypes.NormalizedType{},
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
 						},
-						"notification_policies": schema.ListAttribute{
+						"notification": schema.StringAttribute{
 							Computed:    true,
-							ElementType: types.StringType,
+							Description: `Notification config as JSON.`,
+							CustomType:  jsontypes.NormalizedType{},
 						},
-						"notifications_enabled": schema.BoolAttribute{
-							Computed: true,
-						},
-						"ok_after": schema.Float64Attribute{
-							Computed: true,
-						},
-						"params": schema.MapAttribute{
+						"priority": schema.StringAttribute{
 							Computed:    true,
-							ElementType: types.StringType,
+							Description: `Priority config as JSON. Use jsonencode({ value = "P1" }).`,
+							CustomType:  jsontypes.NormalizedType{},
 						},
-						"rules": schema.ListNestedAttribute{
-							Computed: true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"conditions": schema.ListNestedAttribute{
-										Computed: true,
-										NestedObject: schema.NestedAttributeObject{
-											Attributes: map[string]schema.Attribute{
-												"condition": schema.StringAttribute{
-													Computed: true,
-												},
-												"enabled": schema.BoolAttribute{
-													Computed: true,
-												},
-												"labels": schema.MapAttribute{
-													Computed:    true,
-													ElementType: types.StringType,
-												},
-											},
-										},
-									},
-									"excluded_tags": schema.MapAttribute{
-										Computed:    true,
-										ElementType: types.StringType,
-									},
-									"included_tags": schema.MapAttribute{
-										Computed:    true,
-										ElementType: types.StringType,
-									},
-									"name": schema.StringAttribute{
-										Computed: true,
-									},
-									"show_on_chart": schema.BoolAttribute{
-										Computed: true,
-									},
-								},
-							},
-						},
-						"schedule_interval_seconds": schema.Float64Attribute{
-							Computed: true,
-						},
-						"silences": schema.ListAttribute{
+						"query": schema.StringAttribute{
 							Computed:    true,
-							ElementType: types.StringType,
+							Description: `Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).`,
+							CustomType:  jsontypes.NormalizedType{},
 						},
-						"sql_override": schema.SingleNestedAttribute{
-							Computed: true,
-							Attributes: map[string]schema.Attribute{
-								"instant": schema.StringAttribute{
-									Computed: true,
-								},
-								"range": schema.StringAttribute{
-									Computed: true,
-								},
-							},
+						"silence": schema.ListAttribute{
+							Computed:    true,
+							Description: `List of silence rules.`,
+							ElementType: jsontypes.NormalizedType{},
 						},
-
-						"monitor_query": schema.SingleNestedAttribute{
+						"team": schema.StringAttribute{
+							Computed:    true,
+							Description: `Team config as JSON. Use jsonencode({ value = "<team-name>" }).`,
+							CustomType:  jsontypes.NormalizedType{},
+						},
+						"type": schema.StringAttribute{
 							Computed: true,
-							Attributes: map[string]schema.Attribute{
-								"label_filters": schema.ListNestedAttribute{
-									Computed: true,
-									NestedObject: schema.NestedAttributeObject{
-										Attributes: map[string]schema.Attribute{
-											"label": schema.StringAttribute{
-												Computed: true,
-											},
-											"operator": schema.StringAttribute{
-												Computed: true,
-											},
-											"value": schema.StringAttribute{
-												Computed: true,
-											},
-										},
-									},
-								},
-								"metric_name": schema.StringAttribute{
-									Computed: true,
-								},
-								"operation": schema.SingleNestedAttribute{
-									Computed: true,
-									Attributes: map[string]schema.Attribute{
-										"by_without_clause": schema.SingleNestedAttribute{
-											Computed: true,
-											Attributes: map[string]schema.Attribute{
-												"operator": schema.StringAttribute{
-													Computed: true,
-												},
-												"parameters": schema.ListAttribute{
-													Computed:    true,
-													ElementType: types.StringType,
-												},
-											},
-										},
-										"operation": schema.StringAttribute{
-											Computed: true,
-										},
-									},
-								},
-								"time_range": schema.StringAttribute{
-									Computed: true,
-								},
-							},
+						},
+						"unit": schema.StringAttribute{
+							Computed: true,
 						},
 					},
 				},
@@ -221,7 +156,7 @@ func (d *MonitorsDataSource) Read(ctx context.Context, req datasource.ReadReques
 	if items != nil {
 		values = make([]attr.Value, 0, len(*items))
 		for _, item := range *items {
-			values = append(values, types.ObjectValueMust(MonitorsItemAttrTypes(), map[string]attr.Value{"description": item.Description, "enabled": item.Enabled, "firing_after": item.FiringAfter, "id": item.ID, "is_default": item.IsDefault, "managed_by": item.ManagedBy, "name": item.Name, "notification_policies": item.NotificationPolicies, "notifications_enabled": item.NotificationsEnabled, "ok_after": item.OkAfter, "params": item.Params, "rules": item.Rules, "schedule_interval_seconds": item.ScheduleIntervalSeconds, "silences": item.Silences, "sql_override": item.SqlOverride, "monitor_query": MonitorsMonitorQueryObjectValue(item.MonitorQuery)}))
+			values = append(values, types.ObjectValueMust(MonitorsItemAttrTypes(), map[string]attr.Value{"dataset_id": item.DatasetID, "description": item.Description, "detection_config": item.DetectionConfig, "enabled": item.Enabled, "expr": item.Expr, "firing_condition": item.FiringCondition, "firing_rule": item.FiringRule, "id": item.ID, "managed_by": item.ManagedBy, "metadata": item.Metadata, "name": item.Name, "notification": item.Notification, "priority": item.Priority, "query": item.Query, "silence": item.Silence, "team": item.Team, "type": item.Type, "unit": item.Unit}))
 		}
 	}
 	model.Items = types.ListValueMust(types.ObjectType{AttrTypes: MonitorsItemAttrTypes()}, values)
@@ -230,33 +165,23 @@ func (d *MonitorsDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 func MonitorsItemAttrTypes() map[string]attr.Type {
 	return map[string]attr.Type{
-		"description":               types.StringType,
-		"enabled":                   types.BoolType,
-		"firing_after":              types.Float64Type,
-		"id":                        types.StringType,
-		"is_default":                types.BoolType,
-		"managed_by":                types.StringType,
-		"name":                      types.StringType,
-		"notification_policies":     types.ListType{ElemType: types.StringType},
-		"notifications_enabled":     types.BoolType,
-		"ok_after":                  types.Float64Type,
-		"params":                    types.MapType{ElemType: types.StringType},
-		"rules":                     types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorRulesAttrTypes()}},
-		"schedule_interval_seconds": types.Float64Type,
-		"silences":                  types.ListType{ElemType: types.StringType},
-		"sql_override":              types.ObjectType{AttrTypes: MonitorSqlOverrideAttrTypes()},
-		"monitor_query":             types.ObjectType{AttrTypes: MonitorQueryModelAttrTypes()},
+		"dataset_id":       types.StringType,
+		"description":      types.StringType,
+		"detection_config": jsontypes.NormalizedType{},
+		"enabled":          types.BoolType,
+		"expr":             jsontypes.NormalizedType{},
+		"firing_condition": jsontypes.NormalizedType{},
+		"firing_rule":      jsontypes.NormalizedType{},
+		"id":               types.StringType,
+		"managed_by":       types.StringType,
+		"metadata":         jsontypes.NormalizedType{},
+		"name":             types.StringType,
+		"notification":     jsontypes.NormalizedType{},
+		"priority":         jsontypes.NormalizedType{},
+		"query":            jsontypes.NormalizedType{},
+		"silence":          types.ListType{ElemType: jsontypes.NormalizedType{}},
+		"team":             jsontypes.NormalizedType{},
+		"type":             types.StringType,
+		"unit":             types.StringType,
 	}
-}
-
-func MonitorsMonitorQueryObjectValue(item *MonitorQueryModel) attr.Value {
-	if item == nil {
-		return types.ObjectNull(MonitorQueryModelAttrTypes())
-	}
-	return types.ObjectValueMust(MonitorQueryModelAttrTypes(), map[string]attr.Value{
-		"label_filters": item.LabelFilters,
-		"metric_name":   item.MetricName,
-		"operation":     item.Operation,
-		"time_range":    item.TimeRange,
-	})
 }

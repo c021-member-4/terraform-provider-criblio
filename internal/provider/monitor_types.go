@@ -17,199 +17,87 @@ var _ = context.Background
 var _ = jsontypes.NormalizedType{}
 
 type MonitorModel struct {
-	Description             types.String       `tfsdk:"description" json:"description,omitempty"`
-	Enabled                 types.Bool         `tfsdk:"enabled" json:"enabled,omitempty"`
-	FiringAfter             types.Float64      `tfsdk:"firing_after" json:"firing_after,omitempty"`
-	ID                      types.String       `tfsdk:"id" json:"id,omitempty"`
-	IsDefault               types.Bool         `tfsdk:"is_default" json:"isDefault,omitempty"`
-	ManagedBy               types.String       `tfsdk:"managed_by" json:"managedBy,omitempty"`
-	Name                    types.String       `tfsdk:"name" json:"name,omitempty"`
-	NotificationPolicies    types.List         `tfsdk:"notification_policies" json:"notification_policies,omitempty"`
-	NotificationsEnabled    types.Bool         `tfsdk:"notifications_enabled" json:"notifications_enabled,omitempty"`
-	OkAfter                 types.Float64      `tfsdk:"ok_after" json:"ok_after,omitempty"`
-	Params                  types.Map          `tfsdk:"params" json:"params,omitempty"`
-	Product                 types.String       `tfsdk:"product" json:"product,omitempty"`
-	Rules                   types.List         `tfsdk:"rules" json:"rules,omitempty"`
-	ScheduleIntervalSeconds types.Float64      `tfsdk:"schedule_interval_seconds" json:"schedule_interval_seconds,omitempty"`
-	Silences                types.List         `tfsdk:"silences" json:"silences,omitempty"`
-	SqlOverride             types.Object       `tfsdk:"sql_override" json:"sqlOverride,omitempty"`
-	MonitorQuery            *MonitorQueryModel `tfsdk:"monitor_query" json:"MonitorQuery,omitempty"`
+	DatasetID       types.String         `tfsdk:"dataset_id" json:"datasetId,omitempty"`
+	Description     types.String         `tfsdk:"description" json:"description,omitempty"`
+	DetectionConfig jsontypes.Normalized `tfsdk:"detection_config" json:"detectionConfig,omitempty"`
+	Enabled         types.Bool           `tfsdk:"enabled" json:"enabled,omitempty"`
+	Expr            jsontypes.Normalized `tfsdk:"expr" json:"expr,omitempty"`
+	FiringCondition jsontypes.Normalized `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
+	FiringRule      jsontypes.Normalized `tfsdk:"firing_rule" json:"firingRule,omitempty"`
+	ID              types.String         `tfsdk:"id" json:"id,omitempty"`
+	ManagedBy       types.String         `tfsdk:"managed_by" json:"managedBy,omitempty"`
+	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
+	Name            types.String         `tfsdk:"name" json:"name,omitempty"`
+	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
+	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
+	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
+	Silence         types.List           `tfsdk:"silence" json:"silence,omitempty"`
+	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
+	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
+	Unit            types.String         `tfsdk:"unit" json:"unit,omitempty"`
 }
 
 type MonitorResourceModel struct {
-	Description             types.String       `tfsdk:"description" json:"description,omitempty"`
-	Enabled                 types.Bool         `tfsdk:"enabled" json:"enabled,omitempty"`
-	FiringAfter             types.Float64      `tfsdk:"firing_after" json:"firing_after,omitempty"`
-	ID                      types.String       `tfsdk:"id" json:"id,omitempty"`
-	IsDefault               types.Bool         `tfsdk:"is_default" json:"isDefault,omitempty"`
-	ManagedBy               types.String       `tfsdk:"managed_by" json:"managedBy,omitempty"`
-	Name                    types.String       `tfsdk:"name" json:"name,omitempty"`
-	NotificationPolicies    []types.String     `tfsdk:"notification_policies" json:"notification_policies,omitempty"`
-	NotificationsEnabled    types.Bool         `tfsdk:"notifications_enabled" json:"notifications_enabled,omitempty"`
-	OkAfter                 types.Float64      `tfsdk:"ok_after" json:"ok_after,omitempty"`
-	Params                  types.Map          `tfsdk:"params" json:"params,omitempty"`
-	Product                 types.String       `tfsdk:"product" json:"product,omitempty"`
-	Rules                   types.List         `tfsdk:"rules" json:"rules,omitempty"`
-	ScheduleIntervalSeconds types.Float64      `tfsdk:"schedule_interval_seconds" json:"schedule_interval_seconds,omitempty"`
-	Silences                []types.String     `tfsdk:"silences" json:"silences,omitempty"`
-	SqlOverride             types.Object       `tfsdk:"sql_override" json:"sqlOverride,omitempty"`
-	MonitorQuery            *MonitorQueryModel `tfsdk:"monitor_query" json:"MonitorQuery,omitempty"`
+	DatasetID       types.String         `tfsdk:"dataset_id" json:"datasetId,omitempty"`
+	Description     types.String         `tfsdk:"description" json:"description,omitempty"`
+	DetectionConfig jsontypes.Normalized `tfsdk:"detection_config" json:"detectionConfig,omitempty"`
+	Enabled         types.Bool           `tfsdk:"enabled" json:"enabled,omitempty"`
+	Expr            jsontypes.Normalized `tfsdk:"expr" json:"expr,omitempty"`
+	FiringCondition jsontypes.Normalized `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
+	FiringRule      jsontypes.Normalized `tfsdk:"firing_rule" json:"firingRule,omitempty"`
+	ID              types.String         `tfsdk:"id" json:"id,omitempty"`
+	ManagedBy       types.String         `tfsdk:"managed_by" json:"managedBy,omitempty"`
+	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
+	Name            types.String         `tfsdk:"name" json:"name,omitempty"`
+	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
+	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
+	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
+	Silence         []types.String       `tfsdk:"silence" json:"silence,omitempty"`
+	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
+	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
+	Unit            types.String         `tfsdk:"unit" json:"unit,omitempty"`
 }
 
 type MonitorDataSourceModel struct {
-	Description             types.String       `tfsdk:"description" json:"description,omitempty"`
-	Enabled                 types.Bool         `tfsdk:"enabled" json:"enabled,omitempty"`
-	FiringAfter             types.Float64      `tfsdk:"firing_after" json:"firing_after,omitempty"`
-	ID                      types.String       `tfsdk:"id" json:"id,omitempty"`
-	IsDefault               types.Bool         `tfsdk:"is_default" json:"isDefault,omitempty"`
-	ManagedBy               types.String       `tfsdk:"managed_by" json:"managedBy,omitempty"`
-	Name                    types.String       `tfsdk:"name" json:"name,omitempty"`
-	NotificationPolicies    []types.String     `tfsdk:"notification_policies" json:"notification_policies,omitempty"`
-	NotificationsEnabled    types.Bool         `tfsdk:"notifications_enabled" json:"notifications_enabled,omitempty"`
-	OkAfter                 types.Float64      `tfsdk:"ok_after" json:"ok_after,omitempty"`
-	Params                  types.Map          `tfsdk:"params" json:"params,omitempty"`
-	Product                 types.String       `tfsdk:"product" json:"product,omitempty"`
-	Rules                   types.List         `tfsdk:"rules" json:"rules,omitempty"`
-	ScheduleIntervalSeconds types.Float64      `tfsdk:"schedule_interval_seconds" json:"schedule_interval_seconds,omitempty"`
-	Silences                []types.String     `tfsdk:"silences" json:"silences,omitempty"`
-	SqlOverride             types.Object       `tfsdk:"sql_override" json:"sqlOverride,omitempty"`
-	MonitorQuery            *MonitorQueryModel `tfsdk:"monitor_query" json:"MonitorQuery,omitempty"`
+	DatasetID       types.String         `tfsdk:"dataset_id" json:"datasetId,omitempty"`
+	Description     types.String         `tfsdk:"description" json:"description,omitempty"`
+	DetectionConfig jsontypes.Normalized `tfsdk:"detection_config" json:"detectionConfig,omitempty"`
+	Enabled         types.Bool           `tfsdk:"enabled" json:"enabled,omitempty"`
+	Expr            jsontypes.Normalized `tfsdk:"expr" json:"expr,omitempty"`
+	FiringCondition jsontypes.Normalized `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
+	FiringRule      jsontypes.Normalized `tfsdk:"firing_rule" json:"firingRule,omitempty"`
+	ID              types.String         `tfsdk:"id" json:"id,omitempty"`
+	ManagedBy       types.String         `tfsdk:"managed_by" json:"managedBy,omitempty"`
+	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
+	Name            types.String         `tfsdk:"name" json:"name,omitempty"`
+	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
+	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
+	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
+	Silence         []types.String       `tfsdk:"silence" json:"silence,omitempty"`
+	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
+	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
+	Unit            types.String         `tfsdk:"unit" json:"unit,omitempty"`
 }
 
 type MonitorAPIModel struct {
-	Description             *string           `json:"description,omitempty"`
-	Enabled                 *bool             `json:"enabled,omitempty"`
-	FiringAfter             *float64          `json:"firing_after,omitempty"`
-	ID                      *string           `json:"id,omitempty"`
-	IsDefault               *bool             `json:"isDefault,omitempty"`
-	ManagedBy               *string           `json:"managedBy,omitempty"`
-	Name                    *string           `json:"name,omitempty"`
-	NotificationPolicies    []string          `json:"notification_policies,omitempty"`
-	NotificationsEnabled    *bool             `json:"notifications_enabled,omitempty"`
-	OkAfter                 *float64          `json:"ok_after,omitempty"`
-	Params                  map[string]string `json:"params,omitempty"`
-	Product                 *string           `json:"product,omitempty"`
-	Rules                   any               `json:"rules,omitempty"`
-	ScheduleIntervalSeconds *float64          `json:"schedule_interval_seconds,omitempty"`
-	Silences                []string          `json:"silences,omitempty"`
-	SqlOverride             any               `json:"sqlOverride,omitempty"`
-}
-
-type MonitorRulesModel struct {
-	Conditions   types.List   `tfsdk:"conditions" json:"conditions,omitempty"`
-	ExcludedTags types.Map    `tfsdk:"excluded_tags" json:"excludedTags,omitempty"`
-	IncludedTags types.Map    `tfsdk:"included_tags" json:"includedTags,omitempty"`
-	Name         types.String `tfsdk:"name" json:"name,omitempty"`
-	ShowOnChart  types.Bool   `tfsdk:"show_on_chart" json:"showOnChart,omitempty"`
-}
-
-type MonitorRulesAPIModel struct {
-	Conditions   any               `json:"conditions,omitempty"`
-	ExcludedTags map[string]string `json:"excludedTags,omitempty"`
-	IncludedTags map[string]string `json:"includedTags,omitempty"`
-	Name         *string           `json:"name,omitempty"`
-	ShowOnChart  *bool             `json:"showOnChart,omitempty"`
-}
-
-func MonitorRulesAttrTypes() map[string]attr.Type {
-	return map[string]attr.Type{
-		"conditions":    types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorRulesConditionsAttrTypes()}},
-		"excluded_tags": types.MapType{ElemType: types.StringType},
-		"included_tags": types.MapType{ElemType: types.StringType},
-		"name":          types.StringType,
-		"show_on_chart": types.BoolType,
-	}
-}
-
-type MonitorRulesConditionsModel struct {
-	Condition types.String `tfsdk:"condition" json:"condition,omitempty"`
-	Enabled   types.Bool   `tfsdk:"enabled" json:"enabled,omitempty"`
-	Labels    types.Map    `tfsdk:"labels" json:"labels,omitempty"`
-}
-
-type MonitorRulesConditionsAPIModel struct {
-	Condition *string           `json:"condition,omitempty"`
-	Enabled   *bool             `json:"enabled,omitempty"`
-	Labels    map[string]string `json:"labels,omitempty"`
-}
-
-func MonitorRulesConditionsAttrTypes() map[string]attr.Type {
-	return map[string]attr.Type{
-		"condition": types.StringType,
-		"enabled":   types.BoolType,
-		"labels":    types.MapType{ElemType: types.StringType},
-	}
-}
-
-type MonitorSqlOverrideModel struct {
-	Instant types.String `tfsdk:"instant" json:"instant,omitempty"`
-	Range   types.String `tfsdk:"range" json:"range,omitempty"`
-}
-
-type MonitorSqlOverrideAPIModel struct {
-	Instant *string `json:"instant,omitempty"`
-	Range   *string `json:"range,omitempty"`
-}
-
-func MonitorSqlOverrideAttrTypes() map[string]attr.Type {
-	return map[string]attr.Type{
-		"instant": types.StringType,
-		"range":   types.StringType,
-	}
-}
-
-type MonitorQueryLabelFiltersModel struct {
-	Label    types.String `tfsdk:"label" json:"label,omitempty"`
-	Operator types.String `tfsdk:"operator" json:"operator,omitempty"`
-	Value    types.String `tfsdk:"value" json:"value,omitempty"`
-}
-
-type MonitorQueryLabelFiltersAPIModel struct {
-	Label    *string `json:"label,omitempty"`
-	Operator *string `json:"operator,omitempty"`
-	Value    *string `json:"value,omitempty"`
-}
-
-func MonitorQueryLabelFiltersAttrTypes() map[string]attr.Type {
-	return map[string]attr.Type{
-		"label":    types.StringType,
-		"operator": types.StringType,
-		"value":    types.StringType,
-	}
-}
-
-type MonitorQueryOperationModel struct {
-	ByWithoutClause types.Object `tfsdk:"by_without_clause" json:"byWithoutClause,omitempty"`
-	Operation       types.String `tfsdk:"operation" json:"operation,omitempty"`
-}
-
-type MonitorQueryOperationAPIModel struct {
-	ByWithoutClause any     `json:"byWithoutClause,omitempty"`
-	Operation       *string `json:"operation,omitempty"`
-}
-
-func MonitorQueryOperationAttrTypes() map[string]attr.Type {
-	return map[string]attr.Type{
-		"by_without_clause": types.ObjectType{AttrTypes: MonitorQueryOperationByWithoutClauseAttrTypes()},
-		"operation":         types.StringType,
-	}
-}
-
-type MonitorQueryOperationByWithoutClauseModel struct {
-	Operator   types.String `tfsdk:"operator" json:"operator,omitempty"`
-	Parameters types.List   `tfsdk:"parameters" json:"parameters,omitempty"`
-}
-
-type MonitorQueryOperationByWithoutClauseAPIModel struct {
-	Operator   *string  `json:"operator,omitempty"`
-	Parameters []string `json:"parameters,omitempty"`
-}
-
-func MonitorQueryOperationByWithoutClauseAttrTypes() map[string]attr.Type {
-	return map[string]attr.Type{
-		"operator":   types.StringType,
-		"parameters": types.ListType{ElemType: types.StringType},
-	}
+	DatasetID       *string  `json:"datasetId,omitempty"`
+	Description     *string  `json:"description,omitempty"`
+	DetectionConfig any      `json:"detectionConfig,omitempty"`
+	Enabled         *bool    `json:"enabled,omitempty"`
+	Expr            any      `json:"expr,omitempty"`
+	FiringCondition any      `json:"firingCondition,omitempty"`
+	FiringRule      any      `json:"firingRule,omitempty"`
+	ID              *string  `json:"id,omitempty"`
+	ManagedBy       *string  `json:"managedBy,omitempty"`
+	Metadata        any      `json:"metadata,omitempty"`
+	Name            *string  `json:"name,omitempty"`
+	Notification    any      `json:"notification,omitempty"`
+	Priority        any      `json:"priority,omitempty"`
+	Query           any      `json:"query,omitempty"`
+	Silence         []string `json:"silence,omitempty"`
+	Team            any      `json:"team,omitempty"`
+	Type            *string  `json:"type,omitempty"`
+	Unit            *string  `json:"unit,omitempty"`
 }
 
 func MonitorTerraformValueToJSON(value attr.Value) (any, error) {
@@ -223,6 +111,16 @@ func MonitorTerraformValueToJSON(value attr.Value) (any, error) {
 		return typed.ValueInt64(), nil
 	case types.Float64:
 		return typed.ValueFloat64(), nil
+	case jsontypes.Normalized:
+		raw := typed.ValueString()
+		if raw == "" {
+			return map[string]any{}, nil
+		}
+		var output any
+		if err := json.Unmarshal([]byte(raw), &output); err != nil {
+			return nil, err
+		}
+		return output, nil
 	case types.String:
 		return typed.ValueString(), nil
 	case types.List:
@@ -250,8 +148,15 @@ func MonitorTerraformValueToJSON(value attr.Value) (any, error) {
 		return output, nil
 	case types.Object:
 		output := make(map[string]any, len(typed.Attributes()))
+		attributeTypes := typed.AttributeTypes(context.Background())
 		for key, attribute := range typed.Attributes() {
-			value, err := MonitorTerraformValueToJSON(attribute)
+			var value any
+			var err error
+			if attributeType, ok := attributeTypes[key]; ok && attributeType.Equal(jsontypes.NormalizedType{}) {
+				value, err = MonitorObjectJSONFromTerraformValue(attribute)
+			} else {
+				value, err = MonitorTerraformValueToJSON(attribute)
+			}
 			if err != nil {
 				return nil, err
 			}
@@ -266,6 +171,24 @@ func MonitorTerraformValueToJSON(value attr.Value) (any, error) {
 	default:
 		return nil, fmt.Errorf("unsupported Terraform value %T", value)
 	}
+}
+func MonitorObjectJSONFromTerraformValue(value attr.Value) (any, error) {
+	if value.IsNull() || value.IsUnknown() {
+		return nil, nil
+	}
+	typed, ok := value.(interface{ ValueString() string })
+	if !ok {
+		return nil, fmt.Errorf("expected normalized JSON string, got %T", value)
+	}
+	raw := typed.ValueString()
+	if raw == "" {
+		return map[string]any{}, nil
+	}
+	var output any
+	if err := json.Unmarshal([]byte(raw), &output); err != nil {
+		return nil, err
+	}
+	return output, nil
 }
 
 func MonitorTerraformNameToAPIName(name string) string {
@@ -322,6 +245,16 @@ func MonitorAPIValueToTerraformValue(value any, typ attr.Type) (attr.Value, erro
 			return nil, fmt.Errorf("expected string, got %T", value)
 		}
 		return types.StringValue(typed), nil
+	}
+	if typ.Equal(jsontypes.NormalizedType{}) {
+		if typed, ok := value.(string); ok {
+			return jsontypes.NewNormalizedValue(typed), nil
+		}
+		raw, err := json.Marshal(value)
+		if err != nil {
+			return nil, err
+		}
+		return jsontypes.NewNormalizedValue(string(raw)), nil
 	}
 	switch typed := typ.(type) {
 	case types.ListType:
@@ -409,6 +342,9 @@ func MonitorTerraformNullValue(typ attr.Type) (attr.Value, error) {
 	if typ.Equal(types.StringType) {
 		return types.StringNull(), nil
 	}
+	if typ.Equal(jsontypes.NormalizedType{}) {
+		return jsontypes.NewNormalizedNull(), nil
+	}
 	switch typed := typ.(type) {
 	case types.ListType:
 		return types.ListNull(typed.ElemType), nil
@@ -423,12 +359,26 @@ func MonitorTerraformNullValue(typ attr.Type) (attr.Value, error) {
 
 func (m MonitorModel) MarshalJSON() ([]byte, error) {
 	output := map[string]any{}
+	if !m.DatasetID.IsNull() && !m.DatasetID.IsUnknown() {
+		value, err := MonitorTerraformValueToJSON(m.DatasetID)
+		if err != nil {
+			return nil, fmt.Errorf("convert dataset_id to API value: %v", err)
+		}
+		output["datasetId"] = value
+	}
 	if !m.Description.IsNull() && !m.Description.IsUnknown() {
 		value, err := MonitorTerraformValueToJSON(m.Description)
 		if err != nil {
 			return nil, fmt.Errorf("convert description to API value: %v", err)
 		}
 		output["description"] = value
+	}
+	if !m.DetectionConfig.IsNull() && !m.DetectionConfig.IsUnknown() {
+		value, err := MonitorObjectJSONFromTerraformValue(m.DetectionConfig)
+		if err != nil {
+			return nil, fmt.Errorf("convert detection_config to API value: %v", err)
+		}
+		output["detectionConfig"] = value
 	}
 	if !m.Enabled.IsNull() && !m.Enabled.IsUnknown() {
 		value, err := MonitorTerraformValueToJSON(m.Enabled)
@@ -437,12 +387,26 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		}
 		output["enabled"] = value
 	}
-	if !m.FiringAfter.IsNull() && !m.FiringAfter.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.FiringAfter)
+	if !m.Expr.IsNull() && !m.Expr.IsUnknown() {
+		value, err := MonitorObjectJSONFromTerraformValue(m.Expr)
 		if err != nil {
-			return nil, fmt.Errorf("convert firing_after to API value: %v", err)
+			return nil, fmt.Errorf("convert expr to API value: %v", err)
 		}
-		output["firing_after"] = value
+		output["expr"] = value
+	}
+	if !m.FiringCondition.IsNull() && !m.FiringCondition.IsUnknown() {
+		value, err := MonitorObjectJSONFromTerraformValue(m.FiringCondition)
+		if err != nil {
+			return nil, fmt.Errorf("convert firing_condition to API value: %v", err)
+		}
+		output["firingCondition"] = value
+	}
+	if !m.FiringRule.IsNull() && !m.FiringRule.IsUnknown() {
+		value, err := MonitorObjectJSONFromTerraformValue(m.FiringRule)
+		if err != nil {
+			return nil, fmt.Errorf("convert firing_rule to API value: %v", err)
+		}
+		output["firingRule"] = value
 	}
 	if !m.ID.IsNull() && !m.ID.IsUnknown() {
 		value, err := MonitorTerraformValueToJSON(m.ID)
@@ -451,12 +415,12 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		}
 		output["id"] = value
 	}
-	if !m.IsDefault.IsNull() && !m.IsDefault.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.IsDefault)
+	if !m.Metadata.IsNull() && !m.Metadata.IsUnknown() {
+		value, err := MonitorObjectJSONFromTerraformValue(m.Metadata)
 		if err != nil {
-			return nil, fmt.Errorf("convert is_default to API value: %v", err)
+			return nil, fmt.Errorf("convert metadata to API value: %v", err)
 		}
-		output["isDefault"] = value
+		output["metadata"] = value
 	}
 	if !m.Name.IsNull() && !m.Name.IsUnknown() {
 		value, err := MonitorTerraformValueToJSON(m.Name)
@@ -465,323 +429,192 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		}
 		output["name"] = value
 	}
-	if !m.NotificationPolicies.IsNull() && !m.NotificationPolicies.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.NotificationPolicies)
+	if !m.Notification.IsNull() && !m.Notification.IsUnknown() {
+		value, err := MonitorObjectJSONFromTerraformValue(m.Notification)
 		if err != nil {
-			return nil, fmt.Errorf("convert notification_policies to API value: %v", err)
+			return nil, fmt.Errorf("convert notification to API value: %v", err)
 		}
-		output["notification_policies"] = value
+		output["notification"] = value
 	}
-	if !m.NotificationsEnabled.IsNull() && !m.NotificationsEnabled.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.NotificationsEnabled)
+	if !m.Priority.IsNull() && !m.Priority.IsUnknown() {
+		value, err := MonitorObjectJSONFromTerraformValue(m.Priority)
 		if err != nil {
-			return nil, fmt.Errorf("convert notifications_enabled to API value: %v", err)
+			return nil, fmt.Errorf("convert priority to API value: %v", err)
 		}
-		output["notifications_enabled"] = value
+		output["priority"] = value
 	}
-	if !m.OkAfter.IsNull() && !m.OkAfter.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.OkAfter)
+	if !m.Query.IsNull() && !m.Query.IsUnknown() {
+		value, err := MonitorObjectJSONFromTerraformValue(m.Query)
 		if err != nil {
-			return nil, fmt.Errorf("convert ok_after to API value: %v", err)
+			return nil, fmt.Errorf("convert query to API value: %v", err)
 		}
-		output["ok_after"] = value
+		output["query"] = value
 	}
-	if !m.Params.IsNull() && !m.Params.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.Params)
+	if !m.Silence.IsNull() && !m.Silence.IsUnknown() {
+		value, err := MonitorTerraformValueToJSON(m.Silence)
 		if err != nil {
-			return nil, fmt.Errorf("convert params to API value: %v", err)
+			return nil, fmt.Errorf("convert silence to API value: %v", err)
 		}
-		output["params"] = value
+		output["silence"] = value
 	}
-	if !m.Product.IsNull() && !m.Product.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.Product)
+	if !m.Team.IsNull() && !m.Team.IsUnknown() {
+		value, err := MonitorObjectJSONFromTerraformValue(m.Team)
 		if err != nil {
-			return nil, fmt.Errorf("convert product to API value: %v", err)
+			return nil, fmt.Errorf("convert team to API value: %v", err)
 		}
-		output["product"] = value
+		output["team"] = value
 	}
-	if !m.Rules.IsNull() && !m.Rules.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.Rules)
+	if !m.Type.IsNull() && !m.Type.IsUnknown() {
+		value, err := MonitorTerraformValueToJSON(m.Type)
 		if err != nil {
-			return nil, fmt.Errorf("convert rules to API value: %v", err)
+			return nil, fmt.Errorf("convert type to API value: %v", err)
 		}
-		output["rules"] = value
+		output["type"] = value
 	}
-	if !m.ScheduleIntervalSeconds.IsNull() && !m.ScheduleIntervalSeconds.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.ScheduleIntervalSeconds)
+	if !m.Unit.IsNull() && !m.Unit.IsUnknown() {
+		value, err := MonitorTerraformValueToJSON(m.Unit)
 		if err != nil {
-			return nil, fmt.Errorf("convert schedule_interval_seconds to API value: %v", err)
+			return nil, fmt.Errorf("convert unit to API value: %v", err)
 		}
-		output["schedule_interval_seconds"] = value
-	}
-	if !m.Silences.IsNull() && !m.Silences.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.Silences)
-		if err != nil {
-			return nil, fmt.Errorf("convert silences to API value: %v", err)
-		}
-		output["silences"] = value
-	}
-	if !m.SqlOverride.IsNull() && !m.SqlOverride.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.SqlOverride)
-		if err != nil {
-			return nil, fmt.Errorf("convert sql_override to API value: %v", err)
-		}
-		output["sqlOverride"] = value
-	}
-	if m.MonitorQuery != nil {
-		value, err := m.MonitorQuery.terraformPayload()
-		if err != nil {
-			return nil, err
-		}
-		for key, item := range value {
-			output[key] = item
-		}
+		output["unit"] = value
 	}
 	return json.Marshal(output)
 }
 
 func (m *MonitorModel) UnmarshalJSON(data []byte) error {
-	var raw map[string]any
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
 	var input MonitorAPIModel
 	if err := json.Unmarshal(data, &input); err != nil {
 		return err
+	}
+	if input.DatasetID != nil {
+		m.DatasetID = types.StringValue(*input.DatasetID)
+	} else {
+		m.DatasetID = types.StringNull()
 	}
 	if input.Description != nil {
 		m.Description = types.StringValue(*input.Description)
 	} else {
 		m.Description = types.StringNull()
 	}
+	if input.DetectionConfig != nil {
+		raw, err := json.Marshal(input.DetectionConfig)
+		if err != nil {
+			return fmt.Errorf("convert detectionConfig from API value: %v", err)
+		}
+		m.DetectionConfig = jsontypes.NewNormalizedValue(string(raw))
+	} else {
+		m.DetectionConfig = jsontypes.NewNormalizedNull()
+	}
 	if input.Enabled != nil {
 		m.Enabled = types.BoolValue(*input.Enabled)
 	} else {
 		m.Enabled = types.BoolNull()
 	}
-	if input.FiringAfter != nil {
-		m.FiringAfter = types.Float64Value(*input.FiringAfter)
+	if input.Expr != nil {
+		raw, err := json.Marshal(input.Expr)
+		if err != nil {
+			return fmt.Errorf("convert expr from API value: %v", err)
+		}
+		m.Expr = jsontypes.NewNormalizedValue(string(raw))
 	} else {
-		m.FiringAfter = types.Float64Null()
+		m.Expr = jsontypes.NewNormalizedNull()
+	}
+	if input.FiringCondition != nil {
+		raw, err := json.Marshal(input.FiringCondition)
+		if err != nil {
+			return fmt.Errorf("convert firingCondition from API value: %v", err)
+		}
+		m.FiringCondition = jsontypes.NewNormalizedValue(string(raw))
+	} else {
+		m.FiringCondition = jsontypes.NewNormalizedNull()
+	}
+	if input.FiringRule != nil {
+		raw, err := json.Marshal(input.FiringRule)
+		if err != nil {
+			return fmt.Errorf("convert firingRule from API value: %v", err)
+		}
+		m.FiringRule = jsontypes.NewNormalizedValue(string(raw))
+	} else {
+		m.FiringRule = jsontypes.NewNormalizedNull()
 	}
 	if input.ID != nil {
 		m.ID = types.StringValue(*input.ID)
 	} else {
 		m.ID = types.StringNull()
 	}
-	if input.IsDefault != nil {
-		m.IsDefault = types.BoolValue(*input.IsDefault)
-	} else {
-		m.IsDefault = types.BoolNull()
-	}
 	if input.ManagedBy != nil {
 		m.ManagedBy = types.StringValue(*input.ManagedBy)
 	} else {
 		m.ManagedBy = types.StringNull()
+	}
+	if input.Metadata != nil {
+		raw, err := json.Marshal(input.Metadata)
+		if err != nil {
+			return fmt.Errorf("convert metadata from API value: %v", err)
+		}
+		m.Metadata = jsontypes.NewNormalizedValue(string(raw))
+	} else {
+		m.Metadata = jsontypes.NewNormalizedNull()
 	}
 	if input.Name != nil {
 		m.Name = types.StringValue(*input.Name)
 	} else {
 		m.Name = types.StringNull()
 	}
-	if input.NotificationPolicies != nil {
-		value, diags := types.ListValueFrom(context.Background(), types.StringType, input.NotificationPolicies)
-		if diags.HasError() {
-			return fmt.Errorf("convert notification_policies from API value: %v", diags)
-		}
-		m.NotificationPolicies = value
-	} else {
-		m.NotificationPolicies = types.ListNull(types.StringType)
-	}
-	if input.NotificationsEnabled != nil {
-		m.NotificationsEnabled = types.BoolValue(*input.NotificationsEnabled)
-	} else {
-		m.NotificationsEnabled = types.BoolNull()
-	}
-	if input.OkAfter != nil {
-		m.OkAfter = types.Float64Value(*input.OkAfter)
-	} else {
-		m.OkAfter = types.Float64Null()
-	}
-	if input.Params != nil {
-		value, diags := types.MapValueFrom(context.Background(), types.StringType, input.Params)
-		if diags.HasError() {
-			return fmt.Errorf("convert params from API value: %v", diags)
-		}
-		m.Params = value
-	} else {
-		m.Params = types.MapNull(types.StringType)
-	}
-	if input.Product != nil {
-		m.Product = types.StringValue(*input.Product)
-	} else {
-		m.Product = types.StringNull()
-	}
-	if input.Rules != nil {
-		value, err := MonitorAPIValueToTerraformValue(input.Rules, types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorRulesAttrTypes()}})
+	if input.Notification != nil {
+		raw, err := json.Marshal(input.Notification)
 		if err != nil {
-			return fmt.Errorf("convert rules from API value: %v", err)
+			return fmt.Errorf("convert notification from API value: %v", err)
 		}
-		m.Rules = value.(types.List)
+		m.Notification = jsontypes.NewNormalizedValue(string(raw))
 	} else {
-		m.Rules = types.ListNull(types.ObjectType{AttrTypes: MonitorRulesAttrTypes()})
+		m.Notification = jsontypes.NewNormalizedNull()
 	}
-	if input.ScheduleIntervalSeconds != nil {
-		m.ScheduleIntervalSeconds = types.Float64Value(*input.ScheduleIntervalSeconds)
-	} else {
-		m.ScheduleIntervalSeconds = types.Float64Null()
-	}
-	if input.Silences != nil {
-		value, diags := types.ListValueFrom(context.Background(), types.StringType, input.Silences)
-		if diags.HasError() {
-			return fmt.Errorf("convert silences from API value: %v", diags)
-		}
-		m.Silences = value
-	} else {
-		m.Silences = types.ListNull(types.StringType)
-	}
-	if input.SqlOverride != nil {
-		value, err := MonitorAPIValueToTerraformValue(input.SqlOverride, types.ObjectType{AttrTypes: MonitorSqlOverrideAttrTypes()})
+	if input.Priority != nil {
+		raw, err := json.Marshal(input.Priority)
 		if err != nil {
-			return fmt.Errorf("convert sqlOverride from API value: %v", err)
+			return fmt.Errorf("convert priority from API value: %v", err)
 		}
-		m.SqlOverride = value.(types.Object)
+		m.Priority = jsontypes.NewNormalizedValue(string(raw))
 	} else {
-		m.SqlOverride = types.ObjectNull(MonitorSqlOverrideAttrTypes())
+		m.Priority = jsontypes.NewNormalizedNull()
 	}
-	switch MonitorOneOfDiscriminator(raw) {
+	if input.Query != nil {
+		raw, err := json.Marshal(input.Query)
+		if err != nil {
+			return fmt.Errorf("convert query from API value: %v", err)
+		}
+		m.Query = jsontypes.NewNormalizedValue(string(raw))
+	} else {
+		m.Query = jsontypes.NewNormalizedNull()
 	}
-	if matched, err := m.unmarshalMonitorOneOfByShape(raw); matched || err != nil {
-		return err
+	if input.Silence != nil {
+		value, diags := types.ListValueFrom(context.Background(), jsontypes.NormalizedType{}, input.Silence)
+		if diags.HasError() {
+			return fmt.Errorf("convert silence from API value: %v", diags)
+		}
+		m.Silence = value
+	} else {
+		m.Silence = types.ListNull(jsontypes.NormalizedType{})
+	}
+	if input.Team != nil {
+		raw, err := json.Marshal(input.Team)
+		if err != nil {
+			return fmt.Errorf("convert team from API value: %v", err)
+		}
+		m.Team = jsontypes.NewNormalizedValue(string(raw))
+	} else {
+		m.Team = jsontypes.NewNormalizedNull()
+	}
+	if input.Type != nil {
+		m.Type = types.StringValue(*input.Type)
+	} else {
+		m.Type = types.StringNull()
+	}
+	if input.Unit != nil {
+		m.Unit = types.StringValue(*input.Unit)
+	} else {
+		m.Unit = types.StringNull()
 	}
 	return nil
-}
-
-type MonitorQueryModel struct {
-	LabelFilters types.List   `tfsdk:"label_filters" json:"labelFilters,omitempty"`
-	MetricName   types.String `tfsdk:"metric_name" json:"metricName,omitempty"`
-	Operation    types.Object `tfsdk:"operation" json:"operation,omitempty"`
-	TimeRange    types.String `tfsdk:"time_range" json:"timeRange,omitempty"`
-}
-
-func MonitorQueryModelAttrTypes() map[string]attr.Type {
-	return map[string]attr.Type{
-		"label_filters": types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorQueryLabelFiltersAttrTypes()}},
-		"metric_name":   types.StringType,
-		"operation":     types.ObjectType{AttrTypes: MonitorQueryOperationAttrTypes()},
-		"time_range":    types.StringType,
-	}
-}
-
-func (m MonitorQueryModel) terraformPayload() (map[string]any, error) {
-	output := map[string]any{}
-	if !m.LabelFilters.IsNull() && !m.LabelFilters.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.LabelFilters)
-		if err != nil {
-			return nil, fmt.Errorf("convert label_filters to API value: %v", err)
-		}
-		output["labelFilters"] = value
-	}
-	if !m.MetricName.IsNull() && !m.MetricName.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.MetricName)
-		if err != nil {
-			return nil, fmt.Errorf("convert metric_name to API value: %v", err)
-		}
-		output["metricName"] = value
-	}
-	if !m.Operation.IsNull() && !m.Operation.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.Operation)
-		if err != nil {
-			return nil, fmt.Errorf("convert operation to API value: %v", err)
-		}
-		output["operation"] = value
-	}
-	if !m.TimeRange.IsNull() && !m.TimeRange.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.TimeRange)
-		if err != nil {
-			return nil, fmt.Errorf("convert time_range to API value: %v", err)
-		}
-		output["timeRange"] = value
-	}
-	return output, nil
-}
-
-func (m *MonitorQueryModel) unmarshalPayload(input map[string]any) error {
-	if item, ok := input["labelFilters"]; ok {
-		value, err := MonitorAPIValueToTerraformValue(item, types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorQueryLabelFiltersAttrTypes()}})
-		if err != nil {
-			return fmt.Errorf("convert labelFilters from API value: %v", err)
-		}
-		m.LabelFilters = value.(types.List)
-	} else {
-		m.LabelFilters = types.ListNull(types.ObjectType{AttrTypes: MonitorQueryLabelFiltersAttrTypes()})
-	}
-	if item, ok := input["metricName"]; ok {
-		value, err := MonitorAPIValueToTerraformValue(item, types.StringType)
-		if err != nil {
-			return fmt.Errorf("convert metricName from API value: %v", err)
-		}
-		m.MetricName = value.(types.String)
-	} else {
-		m.MetricName = types.StringNull()
-	}
-	if item, ok := input["operation"]; ok {
-		value, err := MonitorAPIValueToTerraformValue(item, types.ObjectType{AttrTypes: MonitorQueryOperationAttrTypes()})
-		if err != nil {
-			return fmt.Errorf("convert operation from API value: %v", err)
-		}
-		m.Operation = value.(types.Object)
-	} else {
-		m.Operation = types.ObjectNull(MonitorQueryOperationAttrTypes())
-	}
-	if item, ok := input["timeRange"]; ok {
-		value, err := MonitorAPIValueToTerraformValue(item, types.StringType)
-		if err != nil {
-			return fmt.Errorf("convert timeRange from API value: %v", err)
-		}
-		m.TimeRange = value.(types.String)
-	} else {
-		m.TimeRange = types.StringNull()
-	}
-	return nil
-}
-
-func MonitorOneOfDiscriminator(input map[string]any) string {
-	if collector, ok := input["collector"].(map[string]any); ok {
-		if value, ok := collector["type"].(string); ok {
-			return value
-		}
-	}
-	if value, ok := input["type"].(string); ok {
-		return value
-	}
-	return ""
-}
-
-func (m *MonitorModel) unmarshalMonitorOneOfByShape(raw map[string]any) (bool, error) {
-	if MonitorOneOfShapeMatches(raw, []string{"labelFilters", "metricName", "operation", "timeRange"}, []string{"labelFilters", "metricName", "operation", "timeRange"}) {
-		m.MonitorQuery = &MonitorQueryModel{}
-		if err := m.MonitorQuery.unmarshalPayload(raw); err != nil {
-			return true, err
-		}
-		return true, nil
-	}
-	return false, nil
-}
-
-func MonitorOneOfShapeMatches(raw map[string]any, required []string, known []string) bool {
-	for _, name := range required {
-		if _, ok := raw[name]; !ok {
-			return false
-		}
-	}
-	if len(required) > 0 {
-		return true
-	}
-	for _, name := range known {
-		if _, ok := raw[name]; ok {
-			return true
-		}
-	}
-	return false
 }
