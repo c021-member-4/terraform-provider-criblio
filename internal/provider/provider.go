@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 	"os"
 	"time"
@@ -184,9 +185,16 @@ func (p *CriblioProvider) Configure(ctx context.Context, req provider.ConfigureR
 		clientOauth.TokenURL = data.TokenURL.ValueString()
 	}
 
+	innerTransport := http.DefaultTransport
+	if os.Getenv("CRIBL_INSECURE_SKIP_VERIFY") != "" {
+		innerTransport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
+		}
+	}
+
 	providerHTTPTransportOpts := ProviderHTTPTransportOpts{
 		SetHeaders: make(map[string]string),
-		Transport:  http.DefaultTransport,
+		Transport:  innerTransport,
 	}
 
 	httpClient := &http.Client{

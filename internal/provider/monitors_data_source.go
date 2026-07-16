@@ -147,7 +147,7 @@ func (d *MonitorsDataSource) Read(ctx context.Context, req datasource.ReadReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	items, err := restclient.Get[[]MonitorModel](ctx, d.client, "/products/aetos/monitors")
+	items, err := restclient.Get[[]MonitorModel](ctx, d.client, "/products/lakehouse_engine_metrics/monitors")
 	if err != nil {
 		resp.Diagnostics.AddError("failure to invoke API", err.Error())
 		return
