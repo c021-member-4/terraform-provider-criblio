@@ -3112,25 +3112,27 @@ actions:
       x-terraform-resource-name: Deploy
       x-terraform-action: true
 
-  # MON-762: criblio_monitor — Aetos alert monitors (/products/aetos/monitors).
-  # The upstream OpenAPI spec maps this endpoint to MonitorConf, but the actual Aetos API
-  # uses IAetosMonitorConf (packages/metrics-types/src/shared/types.ts). We define
-  # IAetosMonitorConf here and redirect all endpoint request/response schemas to it.
-  - target: "$.paths./products/aetos/monitors.post"
+  # MON-762: criblio_monitor — Aetos alert monitors.
+  # The backend mounts this under /products/lakehouse_engine_metrics/monitors (AETOS_PREFIX).
+  # The upstream spec previously used /products/aetos/monitors (an alias that is not deployed);
+  # the spec path has been corrected to match the deployed route.
+  # The actual Aetos API uses IAetosMonitorConf (packages/metrics-types/src/shared/types.ts).
+  # We define IAetosMonitorConf here and redirect all endpoint request/response schemas to it.
+  - target: "$.paths./products/lakehouse_engine_metrics/monitors.post"
     update:
       x-terraform-resource: true
       x-terraform-resource-name: Monitor
-  - target: "$.paths./products/aetos/monitors.get"
+  - target: "$.paths./products/lakehouse_engine_metrics/monitors.get"
     update:
       x-terraform-list: Monitor
       x-terraform-list-name: Monitors
-  - target: "$.paths./products/aetos/monitors/{id}.get"
+  - target: "$.paths./products/lakehouse_engine_metrics/monitors/{id}.get"
     update:
       x-terraform-read: Monitor
-  - target: "$.paths./products/aetos/monitors/{id}.patch"
+  - target: "$.paths./products/lakehouse_engine_metrics/monitors/{id}.patch"
     update:
       x-terraform-update: Monitor
-  - target: "$.paths./products/aetos/monitors/{id}.delete"
+  - target: "$.paths./products/lakehouse_engine_metrics/monitors/{id}.delete"
     update:
       x-terraform-delete: Monitor
 
@@ -3234,10 +3236,10 @@ actions:
   # Redirect request bodies from MonitorConf → IAetosMonitorConf.
   # (Responses reference CountedMonitorConf, which unwrapCountedResponses transforms
   # after overlay; we redirect its inner items schema instead — see below.)
-  - target: "$.paths./products/aetos/monitors.post.requestBody.content.application/json.schema"
+  - target: "$.paths./products/lakehouse_engine_metrics/monitors.post.requestBody.content.application/json.schema"
     update:
       $ref: "#/components/schemas/IAetosMonitorConf"
-  - target: "$.paths./products/aetos/monitors/{id}.patch.requestBody.content.application/json.schema"
+  - target: "$.paths./products/lakehouse_engine_metrics/monitors/{id}.patch.requestBody.content.application/json.schema"
     update:
       $ref: "#/components/schemas/IAetosMonitorConf"
 

@@ -105677,7 +105677,7 @@ paths:
           schema:
             type: string
           description: The <code>id</code> of the profile to unlink.
-  /products/aetos/monitors:
+  /products/lakehouse_engine_metrics/monitors:
     get:
       operationId: listMonitorConf
       x-cribl-internal: true
@@ -105735,7 +105735,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /products/aetos/monitors/{id}:
+  /products/lakehouse_engine_metrics/monitors/{id}:
     get:
       operationId: getMonitorConfById
       x-cribl-internal: true

@@ -2,6 +2,9 @@ package provider
 
 import (
 	"context"
+	"crypto/tls"
+	"net/http"
+	"os"
 
 	"github.com/criblio/terraform-provider-criblio/internal/auth"
 	"github.com/criblio/terraform-provider-criblio/internal/restclient"
@@ -14,8 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"net/http"
-	"os"
 )
 
 var _ provider.Provider = (*CriblioProvider)(nil)
@@ -183,12 +184,19 @@ func (p *CriblioProvider) Configure(ctx context.Context, req provider.ConfigureR
 		clientOauth.TokenURL = data.TokenURL.ValueString()
 	}
 
-	providerHTTPTransportOpts := ProviderHTTPTransportOpts{
-		SetHeaders: make(map[string]string),
-		Transport:  http.DefaultTransport,
+	innerTransport := http.DefaultTransport
+	if os.Getenv("CRIBL_INSECURE_SKIP_VERIFY") != "" {
+		innerTransport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
+		}
 	}
 
-	httpClient := http.DefaultClient
+	providerHTTPTransportOpts := ProviderHTTPTransportOpts{
+		SetHeaders: make(map[string]string),
+		Transport:  innerTransport,
+	}
+
+	httpClient := &http.Client{}
 	httpClient.Transport = NewProviderHTTPTransport(providerHTTPTransportOpts)
 
 	restCredentials := providerRestCredentials(clientOauth, serverUrlParams, explicitServerUrlParams)
