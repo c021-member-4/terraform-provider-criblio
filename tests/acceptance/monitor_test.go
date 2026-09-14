@@ -84,7 +84,7 @@ func TestAccMonitor(t *testing.T) {
 }
 
 // monitorConfig returns a Terraform configuration for a criblio_monitor resource
-// using the IAetosMonitorConf schema (/products/aetos/monitors Aetos endpoint).
+// using the IAetosMonitorConf schema (/products/lakehouse_engine_metrics/monitors Aetos endpoint).
 func monitorConfig(id, name string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "criblio_monitor" "test" {
@@ -126,7 +126,7 @@ resource "criblio_monitor" "test" {
 
   metadata     = jsonencode({})
   notification = jsonencode({ enabled = false, type = "policy", config = [] })
-  silence      = []
+  silence      = ["sil_test_placeholder"]
 }
 
 data "criblio_monitor" "test" {
