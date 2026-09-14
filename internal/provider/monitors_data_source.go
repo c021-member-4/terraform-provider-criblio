@@ -103,14 +103,23 @@ func (d *MonitorsDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 							Description: `Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).`,
 							CustomType:  jsontypes.NormalizedType{},
 						},
+						"search_mode": schema.StringAttribute{
+							Computed:    true,
+							Description: `Search mode for logs monitors: 'new' or 'saved'. Defaults to 'new'.`,
+						},
 						"silence": schema.ListAttribute{
 							Computed:    true,
-							Description: `List of silence rules.`,
-							ElementType: jsontypes.NormalizedType{},
+							Description: `IDs of the silence windows that mute this monitor.`,
+							ElementType: types.StringType,
 						},
 						"team": schema.StringAttribute{
 							Computed:    true,
 							Description: `Team config as JSON. Use jsonencode({ value = "<team-name>" }).`,
+							CustomType:  jsontypes.NormalizedType{},
+						},
+						"template_params": schema.StringAttribute{
+							Computed:    true,
+							Description: `Per-query template parameters as JSON, keyed by query label. Use jsonencode({ A = { ... } }).`,
 							CustomType:  jsontypes.NormalizedType{},
 						},
 						"type": schema.StringAttribute{
@@ -156,7 +165,7 @@ func (d *MonitorsDataSource) Read(ctx context.Context, req datasource.ReadReques
 	if items != nil {
 		values = make([]attr.Value, 0, len(*items))
 		for _, item := range *items {
-			values = append(values, types.ObjectValueMust(MonitorsItemAttrTypes(), map[string]attr.Value{"dataset_id": item.DatasetID, "description": item.Description, "detection_config": item.DetectionConfig, "enabled": item.Enabled, "expr": item.Expr, "firing_condition": item.FiringCondition, "firing_rule": item.FiringRule, "id": item.ID, "managed_by": item.ManagedBy, "metadata": item.Metadata, "name": item.Name, "notification": item.Notification, "priority": item.Priority, "query": item.Query, "silence": item.Silence, "team": item.Team, "type": item.Type, "unit": item.Unit}))
+			values = append(values, types.ObjectValueMust(MonitorsItemAttrTypes(), map[string]attr.Value{"dataset_id": item.DatasetID, "description": item.Description, "detection_config": item.DetectionConfig, "enabled": item.Enabled, "expr": item.Expr, "firing_condition": item.FiringCondition, "firing_rule": item.FiringRule, "id": item.ID, "managed_by": item.ManagedBy, "metadata": item.Metadata, "name": item.Name, "notification": item.Notification, "priority": item.Priority, "query": item.Query, "search_mode": item.SearchMode, "silence": item.Silence, "team": item.Team, "template_params": item.TemplateParams, "type": item.Type, "unit": item.Unit}))
 		}
 	}
 	model.Items = types.ListValueMust(types.ObjectType{AttrTypes: MonitorsItemAttrTypes()}, values)
@@ -179,8 +188,10 @@ func MonitorsItemAttrTypes() map[string]attr.Type {
 		"notification":     jsontypes.NormalizedType{},
 		"priority":         jsontypes.NormalizedType{},
 		"query":            jsontypes.NormalizedType{},
-		"silence":          types.ListType{ElemType: jsontypes.NormalizedType{}},
+		"search_mode":      types.StringType,
+		"silence":          types.ListType{ElemType: types.StringType},
 		"team":             jsontypes.NormalizedType{},
+		"template_params":  jsontypes.NormalizedType{},
 		"type":             types.StringType,
 		"unit":             types.StringType,
 	}

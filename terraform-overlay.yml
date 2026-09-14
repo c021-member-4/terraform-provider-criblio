@@ -3140,6 +3140,8 @@ actions:
   # JSON blob fields use type: object + x-terraform-object-as-json: true so the codegen
   # generates jsontypes.Normalized in the TF schema (jsonencode() in HCL) but correctly
   # unmarshal the JSON string to a Go object before sending to the API.
+  # `required` mirrors IAetosMonitorConf so a missing field fails at plan time, not on a 400.
+  # $profileRef is intentionally excluded: UI-only, no Terraform-authoring use case.
   - target: "$.components.schemas"
     update:
       IAetosMonitorConf:
@@ -3148,6 +3150,17 @@ actions:
           - id
           - name
           - enabled
+          - type
+          - priority
+          - team
+          - datasetId
+          - query
+          - expr
+          - firingCondition
+          - firingRule
+          - metadata
+          - notification
+          - silence
         properties:
           id:
             type: string
@@ -3214,10 +3227,18 @@ actions:
           silence:
             type: array
             items:
-              type: object
-              additionalProperties: true
-            x-terraform-element-custom-type: jsontypes.NormalizedType{}
-            description: "List of silence rules."
+              type: string
+            description: "IDs of the silence windows that mute this monitor."
+          templateParams:
+            type: object
+            additionalProperties: true
+            x-terraform-custom-type: jsontypes.NormalizedType{}
+            x-terraform-object-as-json: true
+            description: "Per-query template parameters as JSON, keyed by query label. Use jsonencode({ A = { ... } })."
+          searchMode:
+            type: string
+            x-terraform-optional-computed: true
+            description: "Search mode for logs monitors: 'new' or 'saved'. Defaults to 'new'."
           detectionConfig:
             type: object
             additionalProperties: true

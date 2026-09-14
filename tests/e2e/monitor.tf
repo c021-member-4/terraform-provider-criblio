@@ -4,10 +4,8 @@ resource "criblio_monitor" "demo" {
   enabled = true
   type    = "threshold"
 
-  # dataset_id: required for the monitor to evaluate queries in a real environment.
-  # Set to the dataset name your workspace uses, e.g. "metrics".
-  # Omitted here because the e2e sluice has no datasets configured.
-  # dataset_id = "metrics"
+  # Dataset the monitor evaluates against; set to the dataset name your workspace uses.
+  dataset_id = "metrics"
 
   priority = jsonencode({ value = "P2" })
   team     = jsonencode({ value = "ops" })
@@ -40,7 +38,7 @@ resource "criblio_monitor" "demo" {
 
   metadata     = jsonencode({})
   notification = jsonencode({ enabled = false, type = "policy", config = [] })
-  silence      = []
+  silence      = ["sil_test_placeholder"]
 }
 
 data "criblio_monitor" "demo" {
@@ -58,6 +56,6 @@ output "monitor_managed_by" {
 }
 
 output "monitor_dataset_id" {
-  description = "Dataset the monitor queries against (empty when dataset_id not set)."
+  description = "Dataset the monitor queries against."
   value       = data.criblio_monitor.demo.dataset_id
 }

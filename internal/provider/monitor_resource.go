@@ -42,8 +42,8 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 		MarkdownDescription: "Monitor Resource",
 		Attributes: map[string]schema.Attribute{
 			"dataset_id": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Required: true,
+				Optional: false,
 				Computed: false,
 			},
 			"description": schema.StringAttribute{
@@ -64,22 +64,22 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed: false,
 			},
 			"expr": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
+				Required:    true,
+				Optional:    false,
 				Computed:    false,
 				Description: `Expression transformations as JSON. Use jsonencode([...]).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"firing_condition": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
+				Required:    true,
+				Optional:    false,
 				Computed:    false,
 				Description: `Firing condition as JSON. Use jsonencode({ fire_delay = N, clear_delay = M }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"firing_rule": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
+				Required:    true,
+				Optional:    false,
 				Computed:    false,
 				Description: `Firing rule as JSON.`,
 				CustomType:  jsontypes.NormalizedType{},
@@ -100,8 +100,8 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Description: `Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133).`,
 			},
 			"metadata": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
+				Required:    true,
+				Optional:    false,
 				Computed:    false,
 				Description: `Metadata as JSON. Use jsonencode({}).`,
 				CustomType:  jsontypes.NormalizedType{},
@@ -112,43 +112,56 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed: false,
 			},
 			"notification": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
+				Required:    true,
+				Optional:    false,
 				Computed:    false,
 				Description: `Notification config as JSON.`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"priority": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
+				Required:    true,
+				Optional:    false,
 				Computed:    false,
 				Description: `Priority config as JSON. Use jsonencode({ value = "P1" }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"query": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
+				Required:    true,
+				Optional:    false,
 				Computed:    false,
 				Description: `Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
-			"silence": schema.ListAttribute{
+			"search_mode": schema.StringAttribute{
 				Required:    false,
 				Optional:    true,
+				Computed:    true,
+				Description: `Search mode for logs monitors: 'new' or 'saved'. Defaults to 'new'.`,
+			},
+			"silence": schema.ListAttribute{
+				Required:    true,
+				Optional:    false,
 				Computed:    false,
-				Description: `List of silence rules.`,
-				ElementType: jsontypes.NormalizedType{},
+				Description: `IDs of the silence windows that mute this monitor.`,
+				ElementType: types.StringType,
 			},
 			"team": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
+				Required:    true,
+				Optional:    false,
 				Computed:    false,
 				Description: `Team config as JSON. Use jsonencode({ value = "<team-name>" }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
+			"template_params": schema.StringAttribute{
+				Required:    false,
+				Optional:    true,
+				Computed:    false,
+				Description: `Per-query template parameters as JSON, keyed by query label. Use jsonencode({ A = { ... } }).`,
+				CustomType:  jsontypes.NormalizedType{},
+			},
 			"type": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Required: true,
+				Optional: false,
 				Computed: false,
 			},
 			"unit": schema.StringAttribute{
@@ -260,10 +273,43 @@ func isMonitorImportState(state *MonitorModel) bool {
 	if state == nil {
 		return false
 	}
+	if state.DatasetID.IsNull() || state.DatasetID.IsUnknown() {
+		return true
+	}
 	if state.Enabled.IsNull() || state.Enabled.IsUnknown() {
 		return true
 	}
+	if state.Expr.IsNull() || state.Expr.IsUnknown() {
+		return true
+	}
+	if state.FiringCondition.IsNull() || state.FiringCondition.IsUnknown() {
+		return true
+	}
+	if state.FiringRule.IsNull() || state.FiringRule.IsUnknown() {
+		return true
+	}
+	if state.Metadata.IsNull() || state.Metadata.IsUnknown() {
+		return true
+	}
 	if state.Name.IsNull() || state.Name.IsUnknown() {
+		return true
+	}
+	if state.Notification.IsNull() || state.Notification.IsUnknown() {
+		return true
+	}
+	if state.Priority.IsNull() || state.Priority.IsUnknown() {
+		return true
+	}
+	if state.Query.IsNull() || state.Query.IsUnknown() {
+		return true
+	}
+	if state.Silence.IsNull() || state.Silence.IsUnknown() {
+		return true
+	}
+	if state.Team.IsNull() || state.Team.IsUnknown() {
+		return true
+	}
+	if state.Type.IsNull() || state.Type.IsUnknown() {
 		return true
 	}
 	return false
@@ -344,17 +390,28 @@ func applyMonitorAPIToState(api *MonitorModel, state *MonitorModel, preserveInpu
 			state.Query = api.Query
 		}
 	}
+	if !api.SearchMode.IsNull() && !api.SearchMode.IsUnknown() {
+		state.SearchMode = api.SearchMode
+	}
+	if state.SearchMode.IsUnknown() {
+		state.SearchMode = types.StringNull()
+	}
 	if !preserveInputs || (fillMissingInputs && (state.Silence.IsNull() || state.Silence.IsUnknown())) {
 		if !api.Silence.IsNull() && !api.Silence.IsUnknown() {
 			state.Silence = api.Silence
 		}
 	}
 	if elementType := state.Silence.ElementType(context.Background()); elementType == nil {
-		state.Silence = types.ListNull(jsontypes.NormalizedType{})
+		state.Silence = types.ListNull(types.StringType)
 	}
 	if !preserveInputs || (fillMissingInputs && (state.Team.IsNull() || state.Team.IsUnknown())) {
 		if !api.Team.IsNull() && !api.Team.IsUnknown() {
 			state.Team = api.Team
+		}
+	}
+	if !preserveInputs || (fillMissingInputs && (state.TemplateParams.IsNull() || state.TemplateParams.IsUnknown())) {
+		if !api.TemplateParams.IsNull() && !api.TemplateParams.IsUnknown() {
+			state.TemplateParams = api.TemplateParams
 		}
 	}
 	if !preserveInputs || (fillMissingInputs && (state.Type.IsNull() || state.Type.IsUnknown())) {
