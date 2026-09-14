@@ -94,14 +94,23 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 				Description: `Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
+			"search_mode": schema.StringAttribute{
+				Computed:    true,
+				Description: `Search mode for logs monitors: 'new' or 'saved'. Defaults to 'new'.`,
+			},
 			"silence": schema.ListAttribute{
 				Computed:    true,
-				Description: `List of silence rules.`,
-				ElementType: jsontypes.NormalizedType{},
+				Description: `IDs of the silence windows that mute this monitor.`,
+				ElementType: types.StringType,
 			},
 			"team": schema.StringAttribute{
 				Computed:    true,
 				Description: `Team config as JSON. Use jsonencode({ value = "<team-name>" }).`,
+				CustomType:  jsontypes.NormalizedType{},
+			},
+			"template_params": schema.StringAttribute{
+				Computed:    true,
+				Description: `Per-query template parameters as JSON, keyed by query label. Use jsonencode({ A = { ... } }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"type": schema.StringAttribute{

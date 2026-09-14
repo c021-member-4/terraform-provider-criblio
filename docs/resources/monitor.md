@@ -13,24 +13,49 @@ Monitor Resource
 ## Example Usage
 
 ```terraform
-resource "criblio_monitor" "example" {
-  dataset_id = "example"
-  description = "example"
-  detection_config = "example"
-  enabled = "example"
-  expr = "example"
-  firing_condition = "example"
-  firing_rule = "example"
-  id = "example"
-  metadata = "example"
-  name = "example"
-  notification = "example"
-  priority = "example"
-  query = "example"
-  silence = "example"
-  team = "example"
-  type = "example"
-  unit = "example"
+# $profileRef is intentionally unsupported: it is UI-only and has no Terraform-authoring use case.
+resource "criblio_monitor" "my_monitor" {
+  id         = "high-cpu-usage"
+  name       = "High CPU usage"
+  enabled    = true
+  type       = "threshold"
+  dataset_id = "metrics"
+
+  priority = jsonencode({ value = "P2" })
+  team     = jsonencode({ value = "platform" })
+
+  query = jsonencode({
+    A = {
+      mode      = "promql"
+      datasetId = "metrics"
+      promql    = "avg by (host) (cpu_usage_percent)"
+    }
+  })
+
+  expr = jsonencode([])
+
+  firing_condition = jsonencode({
+    fire_delay  = 300
+    clear_delay = 60
+  })
+
+  firing_rule = jsonencode({
+    label = "A"
+    threshold = [
+      {
+        severity       = "critical"
+        limit          = 90
+        operator       = "gt"
+        includedTags   = []
+        excludedTags   = []
+        timesTriggered = 1
+      }
+    ]
+  })
+
+  metadata     = jsonencode({})
+  notification = jsonencode({ enabled = false, type = "policy", config = [] })
+  silence      = []
 }
 ```
 
@@ -39,25 +64,27 @@ resource "criblio_monitor" "example" {
 
 ### Required
 
-- `enabled` (Boolean)
-- `id` (String)
-- `name` (String)
-
-### Optional
-
 - `dataset_id` (String)
-- `description` (String)
-- `detection_config` (String) Detection configuration as JSON.
+- `enabled` (Boolean)
 - `expr` (String) Expression transformations as JSON. Use jsonencode([...]).
 - `firing_condition` (String) Firing condition as JSON. Use jsonencode({ fire_delay = N, clear_delay = M }).
 - `firing_rule` (String) Firing rule as JSON.
+- `id` (String)
 - `metadata` (String) Metadata as JSON. Use jsonencode({}).
+- `name` (String)
 - `notification` (String) Notification config as JSON.
 - `priority` (String) Priority config as JSON. Use jsonencode({ value = "P1" }).
 - `query` (String) Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).
-- `silence` (List of String) List of silence rules.
+- `silence` (List of String) IDs of the silence windows that mute this monitor.
 - `team` (String) Team config as JSON. Use jsonencode({ value = "<team-name>" }).
 - `type` (String)
+
+### Optional
+
+- `description` (String)
+- `detection_config` (String) Detection configuration as JSON.
+- `search_mode` (String) Search mode for logs monitors: 'new' or 'saved'. Defaults to 'new'.
+- `template_params` (String) Per-query template parameters as JSON, keyed by query label. Use jsonencode({ A = { ... } }).
 - `unit` (String)
 
 ### Read-Only
@@ -73,12 +100,12 @@ In Terraform v1.5.0 and later, the [`import` block](https://developer.hashicorp.
 ```terraform
 import {
   to = criblio_monitor.my_criblio_monitor
-  id = "example"
+  id = "high-cpu-usage"
 }
 ```
 
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-terraform import criblio_monitor.my_criblio_monitor "example"
+terraform import criblio_monitor.my_criblio_monitor "high-cpu-usage"
 ```

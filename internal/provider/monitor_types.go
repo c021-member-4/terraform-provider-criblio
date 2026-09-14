@@ -31,8 +31,10 @@ type MonitorModel struct {
 	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
 	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
 	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
+	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
 	Silence         types.List           `tfsdk:"silence" json:"silence,omitempty"`
 	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
+	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
 	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
 	Unit            types.String         `tfsdk:"unit" json:"unit,omitempty"`
 }
@@ -52,8 +54,10 @@ type MonitorResourceModel struct {
 	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
 	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
 	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
+	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
 	Silence         []types.String       `tfsdk:"silence" json:"silence,omitempty"`
 	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
+	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
 	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
 	Unit            types.String         `tfsdk:"unit" json:"unit,omitempty"`
 }
@@ -73,8 +77,10 @@ type MonitorDataSourceModel struct {
 	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
 	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
 	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
+	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
 	Silence         []types.String       `tfsdk:"silence" json:"silence,omitempty"`
 	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
+	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
 	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
 	Unit            types.String         `tfsdk:"unit" json:"unit,omitempty"`
 }
@@ -94,8 +100,10 @@ type MonitorAPIModel struct {
 	Notification    any      `json:"notification,omitempty"`
 	Priority        any      `json:"priority,omitempty"`
 	Query           any      `json:"query,omitempty"`
+	SearchMode      *string  `json:"searchMode,omitempty"`
 	Silence         []string `json:"silence,omitempty"`
 	Team            any      `json:"team,omitempty"`
+	TemplateParams  any      `json:"templateParams,omitempty"`
 	Type            *string  `json:"type,omitempty"`
 	Unit            *string  `json:"unit,omitempty"`
 }
@@ -450,6 +458,13 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		}
 		output["query"] = value
 	}
+	if !m.SearchMode.IsNull() && !m.SearchMode.IsUnknown() {
+		value, err := MonitorTerraformValueToJSON(m.SearchMode)
+		if err != nil {
+			return nil, fmt.Errorf("convert search_mode to API value: %v", err)
+		}
+		output["searchMode"] = value
+	}
 	if !m.Silence.IsNull() && !m.Silence.IsUnknown() {
 		value, err := MonitorTerraformValueToJSON(m.Silence)
 		if err != nil {
@@ -463,6 +478,13 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 			return nil, fmt.Errorf("convert team to API value: %v", err)
 		}
 		output["team"] = value
+	}
+	if !m.TemplateParams.IsNull() && !m.TemplateParams.IsUnknown() {
+		value, err := MonitorObjectJSONFromTerraformValue(m.TemplateParams)
+		if err != nil {
+			return nil, fmt.Errorf("convert template_params to API value: %v", err)
+		}
+		output["templateParams"] = value
 	}
 	if !m.Type.IsNull() && !m.Type.IsUnknown() {
 		value, err := MonitorTerraformValueToJSON(m.Type)
@@ -588,14 +610,19 @@ func (m *MonitorModel) UnmarshalJSON(data []byte) error {
 	} else {
 		m.Query = jsontypes.NewNormalizedNull()
 	}
+	if input.SearchMode != nil {
+		m.SearchMode = types.StringValue(*input.SearchMode)
+	} else {
+		m.SearchMode = types.StringNull()
+	}
 	if input.Silence != nil {
-		value, diags := types.ListValueFrom(context.Background(), jsontypes.NormalizedType{}, input.Silence)
+		value, diags := types.ListValueFrom(context.Background(), types.StringType, input.Silence)
 		if diags.HasError() {
 			return fmt.Errorf("convert silence from API value: %v", diags)
 		}
 		m.Silence = value
 	} else {
-		m.Silence = types.ListNull(jsontypes.NormalizedType{})
+		m.Silence = types.ListNull(types.StringType)
 	}
 	if input.Team != nil {
 		raw, err := json.Marshal(input.Team)
@@ -605,6 +632,15 @@ func (m *MonitorModel) UnmarshalJSON(data []byte) error {
 		m.Team = jsontypes.NewNormalizedValue(string(raw))
 	} else {
 		m.Team = jsontypes.NewNormalizedNull()
+	}
+	if input.TemplateParams != nil {
+		raw, err := json.Marshal(input.TemplateParams)
+		if err != nil {
+			return fmt.Errorf("convert templateParams from API value: %v", err)
+		}
+		m.TemplateParams = jsontypes.NewNormalizedValue(string(raw))
+	} else {
+		m.TemplateParams = jsontypes.NewNormalizedNull()
 	}
 	if input.Type != nil {
 		m.Type = types.StringValue(*input.Type)
