@@ -36,36 +36,40 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 		MarkdownDescription: "Monitor Data Source",
 		Attributes: map[string]schema.Attribute{
 			"dataset_id": schema.StringAttribute{
-				Computed: true,
+				Computed:    true,
+				Description: `Default dataset used for query execution and alert history storage. Per-query overrides are set via the query's datasetId.`,
 			},
 			"description": schema.StringAttribute{
-				Computed: true,
+				Computed:    true,
+				Description: `Optional human-readable description of the monitor.`,
 			},
 			"detection_config": schema.StringAttribute{
 				Computed:    true,
-				Description: `Detection configuration as JSON.`,
+				Description: `Type-specific detection configuration for change, anomaly, outlier, and forecast monitors. Use jsonencode({ ... }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"enabled": schema.BoolAttribute{
-				Computed: true,
+				Computed:    true,
+				Description: `Whether the monitor is active and evaluated.`,
 			},
 			"expr": schema.StringAttribute{
 				Computed:    true,
-				Description: `Expression transformations as JSON. Use jsonencode([...]).`,
+				Description: `Query expressions evaluated to produce the monitor's series. Use jsonencode([...]).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"firing_condition": schema.StringAttribute{
 				Computed:    true,
-				Description: `Firing condition as JSON. Use jsonencode({ fire_delay = N, clear_delay = M }).`,
+				Description: `Condition that determines when the monitor fires. Use jsonencode({ fire_delay = N, clear_delay = M }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"firing_rule": schema.StringAttribute{
 				Computed:    true,
-				Description: `Firing rule as JSON.`,
+				Description: `Rule defining firing thresholds and overrides. Use jsonencode({ label = "A", threshold = [...] }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"id": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: `Unique identifier for the monitor.`,
 			},
 			"managed_by": schema.StringAttribute{
 				Computed:    true,
@@ -73,51 +77,54 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 			},
 			"metadata": schema.StringAttribute{
 				Computed:    true,
-				Description: `Metadata as JSON. Use jsonencode({}).`,
+				Description: `Arbitrary key-value metadata. Use jsonencode({}).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"name": schema.StringAttribute{
-				Computed: true,
+				Computed:    true,
+				Description: `Human-readable name for the monitor.`,
 			},
 			"notification": schema.StringAttribute{
 				Computed:    true,
-				Description: `Notification config as JSON.`,
+				Description: `Notification configuration for the monitor. Use jsonencode({ enabled = false, type = "policy", config = [] }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"priority": schema.StringAttribute{
 				Computed:    true,
-				Description: `Priority config as JSON. Use jsonencode({ value = "P1" }).`,
+				Description: `Monitor priority, inheritable from a linked profile. Use jsonencode({ value = "P1" }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"query": schema.StringAttribute{
 				Computed:    true,
-				Description: `Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).`,
+				Description: `Monitor queries keyed by query label. Use jsonencode({ A = { mode = "promql", promql = "..." } }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"search_mode": schema.StringAttribute{
 				Computed:    true,
-				Description: `Search mode for logs monitors: 'new' or 'saved'. Defaults to 'new'.`,
+				Description: `Logs monitors only. Distinguishes authoring a fresh search ('new') from selecting a saved one ('saved'). Defaults to 'new' when omitted; ignored for non-logs monitor types.`,
 			},
 			"silence": schema.ListAttribute{
 				Computed:    true,
-				Description: `IDs of the silence windows that mute this monitor.`,
+				Description: `IDs of silence windows that suppress this monitor's alerts.`,
 				ElementType: types.StringType,
 			},
 			"team": schema.StringAttribute{
 				Computed:    true,
-				Description: `Team config as JSON. Use jsonencode({ value = "<team-name>" }).`,
+				Description: `Owning team, inheritable from a linked profile. Use jsonencode({ value = "<team-name>" }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"template_params": schema.StringAttribute{
 				Computed:    true,
-				Description: `Per-query template parameters as JSON, keyed by query label. Use jsonencode({ A = { ... } }).`,
+				Description: `Template parameter bindings keyed by query label. Use jsonencode({ A = { ... } }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
 			"type": schema.StringAttribute{
-				Computed: true,
+				Computed:    true,
+				Description: `Monitor type, which determines the detection strategy (for example threshold, change, anomaly, outlier, forecast, or logs).`,
 			},
 			"unit": schema.StringAttribute{
-				Computed: true,
+				Computed:    true,
+				Description: `Optional unit label applied to the monitor's values.`,
 			},
 		},
 	}

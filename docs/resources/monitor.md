@@ -64,28 +64,28 @@ resource "criblio_monitor" "my_monitor" {
 
 ### Required
 
-- `dataset_id` (String)
-- `enabled` (Boolean)
-- `expr` (String) Expression transformations as JSON. Use jsonencode([...]).
-- `firing_condition` (String) Firing condition as JSON. Use jsonencode({ fire_delay = N, clear_delay = M }).
-- `firing_rule` (String) Firing rule as JSON.
-- `id` (String)
-- `metadata` (String) Metadata as JSON. Use jsonencode({}).
-- `name` (String)
-- `notification` (String) Notification config as JSON.
-- `priority` (String) Priority config as JSON. Use jsonencode({ value = "P1" }).
-- `query` (String) Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).
-- `silence` (List of String) IDs of the silence windows that mute this monitor.
-- `team` (String) Team config as JSON. Use jsonencode({ value = "<team-name>" }).
-- `type` (String)
+- `dataset_id` (String) Default dataset used for query execution and alert history storage. Per-query overrides are set via the query's datasetId.
+- `enabled` (Boolean) Whether the monitor is active and evaluated.
+- `expr` (String) Query expressions evaluated to produce the monitor's series. Use jsonencode([...]).
+- `firing_condition` (String) Condition that determines when the monitor fires. Use jsonencode({ fire_delay = N, clear_delay = M }).
+- `firing_rule` (String) Rule defining firing thresholds and overrides. Use jsonencode({ label = "A", threshold = [...] }).
+- `id` (String) Unique identifier for the monitor.
+- `metadata` (String) Arbitrary key-value metadata. Use jsonencode({}).
+- `name` (String) Human-readable name for the monitor.
+- `notification` (String) Notification configuration for the monitor. Use jsonencode({ enabled = false, type = "policy", config = [] }).
+- `priority` (String) Monitor priority, inheritable from a linked profile. Use jsonencode({ value = "P1" }).
+- `query` (String) Monitor queries keyed by query label. Use jsonencode({ A = { mode = "promql", promql = "..." } }).
+- `silence` (List of String) IDs of silence windows that suppress this monitor's alerts.
+- `team` (String) Owning team, inheritable from a linked profile. Use jsonencode({ value = "<team-name>" }).
+- `type` (String) Monitor type, which determines the detection strategy (for example threshold, change, anomaly, outlier, forecast, or logs).
 
 ### Optional
 
-- `description` (String)
-- `detection_config` (String) Detection configuration as JSON.
-- `search_mode` (String) Search mode for logs monitors: 'new' or 'saved'. Defaults to 'new'.
-- `template_params` (String) Per-query template parameters as JSON, keyed by query label. Use jsonencode({ A = { ... } }).
-- `unit` (String)
+- `description` (String) Optional human-readable description of the monitor.
+- `detection_config` (String) Type-specific detection configuration for change, anomaly, outlier, and forecast monitors. Use jsonencode({ ... }).
+- `search_mode` (String) Logs monitors only. Distinguishes authoring a fresh search ('new') from selecting a saved one ('saved'). Defaults to 'new' when omitted; ignored for non-logs monitor types.
+- `template_params` (String) Template parameter bindings keyed by query label. Use jsonencode({ A = { ... } }).
+- `unit` (String) Optional unit label applied to the monitor's values.
 
 ### Read-Only
 

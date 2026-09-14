@@ -3663,8 +3663,8 @@ actions:
   # The backend mounts this under /products/lakehouse_engine_metrics/monitors (AETOS_PREFIX).
   # The upstream spec previously used /products/aetos/monitors (an alias that is not deployed);
   # the spec path has been corrected to match the deployed route.
-  # The actual Aetos API uses IAetosMonitorConf (packages/metrics-types/src/shared/types.ts).
-  # We define IAetosMonitorConf here and redirect all endpoint request/response schemas to it.
+  # Requests and responses both reference upstream's native AetosMonitorConf; we annotate it
+  # in place rather than defining a parallel schema, so new upstream fields arrive for free.
   - target: "$.paths./products/lakehouse_engine_metrics/monitors.post"
     update:
       x-terraform-resource: true
@@ -3683,139 +3683,97 @@ actions:
     update:
       x-terraform-delete: Monitor
 
-  # Define IAetosMonitorConf — the correct schema for the Aetos monitors API.
-  # JSON blob fields use type: object + x-terraform-object-as-json: true so the codegen
-  # generates jsontypes.Normalized in the TF schema (jsonencode() in HCL) but correctly
-  # unmarshal the JSON string to a Go object before sending to the API.
-  # `required` mirrors IAetosMonitorConf so a missing field fails at plan time, not on a 400.
-  # $profileRef is intentionally excluded: UI-only, no Terraform-authoring use case.
-  - target: "$.components.schemas"
+  # Scalars and enums are adopted as-is; only Terraform metadata is merged in. managedBy is
+  # added because upstream omits it; $profileRef is UI-only and `$` is no legal Go identifier.
+  - target: "$.components.schemas.AetosMonitorConf.properties"
     update:
-      IAetosMonitorConf:
-        type: object
-        required:
-          - id
-          - name
-          - enabled
-          - type
-          - priority
-          - team
-          - datasetId
-          - query
-          - expr
-          - firingCondition
-          - firingRule
-          - metadata
-          - notification
-          - silence
-        properties:
-          id:
-            type: string
-            x-terraform-force-new: true
-            x-terraform-suppress-diff: explicit
-          name:
-            type: string
-          enabled:
-            type: boolean
-          type:
-            type: string
-          description:
-            type: string
-          datasetId:
-            type: string
-          priority:
-            type: object
-            additionalProperties: true
-            x-terraform-custom-type: jsontypes.NormalizedType{}
-            x-terraform-object-as-json: true
-            description: "Priority config as JSON. Use jsonencode({ value = \"P1\" })."
-          team:
-            type: object
-            additionalProperties: true
-            x-terraform-custom-type: jsontypes.NormalizedType{}
-            x-terraform-object-as-json: true
-            description: "Team config as JSON. Use jsonencode({ value = \"<team-name>\" })."
-          query:
-            type: object
-            additionalProperties: true
-            x-terraform-custom-type: jsontypes.NormalizedType{}
-            x-terraform-object-as-json: true
-            description: "Query config as JSON. Use jsonencode({ A = { mode = \"promql\", promql = \"...\" } })."
-          expr:
-            type: object
-            additionalProperties: true
-            x-terraform-custom-type: jsontypes.NormalizedType{}
-            x-terraform-object-as-json: true
-            description: "Expression transformations as JSON. Use jsonencode([...])."
-          firingCondition:
-            type: object
-            additionalProperties: true
-            x-terraform-custom-type: jsontypes.NormalizedType{}
-            x-terraform-object-as-json: true
-            description: "Firing condition as JSON. Use jsonencode({ fire_delay = N, clear_delay = M })."
-          firingRule:
-            type: object
-            additionalProperties: true
-            x-terraform-custom-type: jsontypes.NormalizedType{}
-            x-terraform-object-as-json: true
-            description: "Firing rule as JSON."
-          metadata:
-            type: object
-            additionalProperties: true
-            x-terraform-custom-type: jsontypes.NormalizedType{}
-            x-terraform-object-as-json: true
-            description: "Metadata as JSON. Use jsonencode({})."
-          notification:
-            type: object
-            additionalProperties: true
-            x-terraform-custom-type: jsontypes.NormalizedType{}
-            x-terraform-object-as-json: true
-            description: "Notification config as JSON."
-          silence:
-            type: array
-            items:
-              type: string
-            description: "IDs of the silence windows that mute this monitor."
-          templateParams:
-            type: object
-            additionalProperties: true
-            x-terraform-custom-type: jsontypes.NormalizedType{}
-            x-terraform-object-as-json: true
-            description: "Per-query template parameters as JSON, keyed by query label. Use jsonencode({ A = { ... } })."
-          searchMode:
-            type: string
-            x-terraform-optional-computed: true
-            description: "Search mode for logs monitors: 'new' or 'saved'. Defaults to 'new'."
-          detectionConfig:
-            type: object
-            additionalProperties: true
-            x-terraform-custom-type: jsontypes.NormalizedType{}
-            x-terraform-object-as-json: true
-            x-terraform-optional-computed: true
-            description: "Detection configuration as JSON."
-          unit:
-            type: string
-            x-terraform-optional-computed: true
-          managedBy:
-            type: string
-            x-terraform-computed: true
-            description: "Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133)."
+      "$profileRef":
+        x-terraform-ignore: true
+      id:
+        x-terraform-force-new: true
+        x-terraform-suppress-diff: explicit
+      unit:
+        x-terraform-optional-computed: true
+      searchMode:
+        x-terraform-optional-computed: true
+      managedBy:
+        type: string
+        x-terraform-computed: true
+        description: "Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133)."
 
-  # Redirect request bodies from MonitorConf → IAetosMonitorConf.
-  # (Responses reference CountedMonitorConf, which unwrapCountedResponses transforms
-  # after overlay; we redirect its inner items schema instead — see below.)
-  - target: "$.paths./products/lakehouse_engine_metrics/monitors.post.requestBody.content.application/json.schema"
-    update:
-      $ref: "#/components/schemas/IAetosMonitorConf"
-  - target: "$.paths./products/lakehouse_engine_metrics/monitors/{id}.patch.requestBody.content.application/json.schema"
-    update:
-      $ref: "#/components/schemas/IAetosMonitorConf"
-
-  # CountedMonitorConf wraps the response arrays; redirect its inner item schema so
-  # unwrapCountedResponses (which runs after overlay) produces IAetosMonitorConf-typed
-  # responses for POST, PATCH, GET list, and GET by ID.
-  - target: "$.components.schemas.CountedMonitorConf.properties.items.items"
-    update:
-      $ref: "#/components/schemas/IAetosMonitorConf"
+  # Structured fields flatten to jsontypes.Normalized (jsonencode() in HCL). replace, not
+  # update: codegen resolves $ref ahead of `type`, so the upstream $ref has to go.
+  - target: "$.components.schemas.AetosMonitorConf.properties.priority"
+    replace:
+      type: object
+      additionalProperties: true
+      x-terraform-custom-type: jsontypes.NormalizedType{}
+      x-terraform-object-as-json: true
+      description: "Monitor priority, inheritable from a linked profile. Use jsonencode({ value = \"P1\" })."
+  - target: "$.components.schemas.AetosMonitorConf.properties.team"
+    replace:
+      type: object
+      additionalProperties: true
+      x-terraform-custom-type: jsontypes.NormalizedType{}
+      x-terraform-object-as-json: true
+      description: "Owning team, inheritable from a linked profile. Use jsonencode({ value = \"<team-name>\" })."
+  - target: "$.components.schemas.AetosMonitorConf.properties.query"
+    replace:
+      type: object
+      additionalProperties: true
+      x-terraform-custom-type: jsontypes.NormalizedType{}
+      x-terraform-object-as-json: true
+      description: "Monitor queries keyed by query label. Use jsonencode({ A = { mode = \"promql\", promql = \"...\" } })."
+  - target: "$.components.schemas.AetosMonitorConf.properties.expr"
+    replace:
+      type: object
+      additionalProperties: true
+      x-terraform-custom-type: jsontypes.NormalizedType{}
+      x-terraform-object-as-json: true
+      description: "Query expressions evaluated to produce the monitor's series. Use jsonencode([...])."
+  - target: "$.components.schemas.AetosMonitorConf.properties.firingCondition"
+    replace:
+      type: object
+      additionalProperties: true
+      x-terraform-custom-type: jsontypes.NormalizedType{}
+      x-terraform-object-as-json: true
+      description: "Condition that determines when the monitor fires. Use jsonencode({ fire_delay = N, clear_delay = M })."
+  - target: "$.components.schemas.AetosMonitorConf.properties.firingRule"
+    replace:
+      type: object
+      additionalProperties: true
+      x-terraform-custom-type: jsontypes.NormalizedType{}
+      x-terraform-object-as-json: true
+      description: "Rule defining firing thresholds and overrides. Use jsonencode({ label = \"A\", threshold = [...] })."
+  - target: "$.components.schemas.AetosMonitorConf.properties.metadata"
+    replace:
+      type: object
+      additionalProperties: true
+      x-terraform-custom-type: jsontypes.NormalizedType{}
+      x-terraform-object-as-json: true
+      description: "Arbitrary key-value metadata. Use jsonencode({})."
+  - target: "$.components.schemas.AetosMonitorConf.properties.notification"
+    replace:
+      type: object
+      additionalProperties: true
+      x-terraform-custom-type: jsontypes.NormalizedType{}
+      x-terraform-object-as-json: true
+      description: "Notification configuration for the monitor. Use jsonencode({ enabled = false, type = \"policy\", config = [] })."
+  - target: "$.components.schemas.AetosMonitorConf.properties.templateParams"
+    replace:
+      type: object
+      additionalProperties: true
+      x-terraform-custom-type: jsontypes.NormalizedType{}
+      x-terraform-object-as-json: true
+      description: "Template parameter bindings keyed by query label. Use jsonencode({ A = { ... } })."
+  # detectionConfig's upstream $ref is a oneOf; codegen would split it into resource variants.
+  - target: "$.components.schemas.AetosMonitorConf.properties.detectionConfig"
+    replace:
+      type: object
+      additionalProperties: true
+      x-terraform-custom-type: jsontypes.NormalizedType{}
+      x-terraform-object-as-json: true
+      x-terraform-optional-computed: true
+      description: "Type-specific detection configuration for change, anomaly, outlier, and forecast monitors. Use jsonencode({ ... })."
 
   

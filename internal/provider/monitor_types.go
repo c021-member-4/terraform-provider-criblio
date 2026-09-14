@@ -157,7 +157,8 @@ func MonitorTerraformValueToJSON(value attr.Value) (any, error) {
 	case types.Object:
 		output := make(map[string]any, len(typed.Attributes()))
 		attributeTypes := typed.AttributeTypes(context.Background())
-		for key, attribute := range typed.Attributes() {
+		attributes := typed.Attributes()
+		for key, attribute := range attributes {
 			var value any
 			var err error
 			if attributeType, ok := attributeTypes[key]; ok && attributeType.Equal(jsontypes.NormalizedType{}) {
@@ -171,7 +172,8 @@ func MonitorTerraformValueToJSON(value attr.Value) (any, error) {
 			if value == nil {
 				continue
 			}
-			output[MonitorTerraformNameToAPIName(key)] = value
+			apiKey := MonitorTerraformNameToAPIName(key)
+			output[apiKey] = value
 		}
 		return output, nil
 	case interface{ ValueString() string }:

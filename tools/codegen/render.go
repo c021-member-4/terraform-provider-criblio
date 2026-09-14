@@ -1763,7 +1763,9 @@ func exampleUsage(resource parser.ResourceDef) string {
 }
 
 func curatedExampleUsage(resource parser.ResourceDef) (string, bool) {
-	if resource.TypeName == "criblio_search_dataset_ruleset" || resource.TypeName == "criblio_search_datatype" {
+	// These resources ship a hand-written example that must win over the spec's own example.
+	if resource.TypeName == "criblio_search_dataset_ruleset" || resource.TypeName == "criblio_search_datatype" ||
+		resource.TypeName == "criblio_monitor" {
 		content, err := readRepoFile(filepath.Join("examples", "resources", resource.TypeName, "resource.tf"))
 		if err != nil {
 			return "", false
