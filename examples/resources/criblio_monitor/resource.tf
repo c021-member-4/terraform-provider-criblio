@@ -8,8 +8,8 @@ resource "criblio_monitor" "my_monitor" {
   type       = "threshold"
   dataset_id = "metrics"
 
-  priority = jsonencode({ value = "P2" })
-  team     = jsonencode({ value = "platform" })
+  priority = { value = "P2" }
+  team     = { value = "platform" }
 
   query = jsonencode({
     A = {

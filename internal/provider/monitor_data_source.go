@@ -89,10 +89,14 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 				Description: `Notification configuration for the monitor. Use jsonencode({ enabled = false, type = "policy", config = [] }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
-			"priority": schema.StringAttribute{
+			"priority": schema.SingleNestedAttribute{
 				Computed:    true,
-				Description: `Monitor priority, inheritable from a linked profile. Use jsonencode({ value = "P1" }).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Monitor priority. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = "P1" }.`,
+				Attributes: map[string]schema.Attribute{
+					"value": schema.StringAttribute{
+						Computed: true,
+					},
+				},
 			},
 			"query": schema.StringAttribute{
 				Computed:    true,
@@ -103,10 +107,14 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 				Computed:    true,
 				Description: `Logs monitors only. Distinguishes authoring a fresh search ('new') from selecting a saved one ('saved'). Defaults to 'new' when omitted; ignored for non-logs monitor types.`,
 			},
-			"team": schema.StringAttribute{
+			"team": schema.SingleNestedAttribute{
 				Computed:    true,
-				Description: `Owning team, inheritable from a linked profile. Use jsonencode({ value = "<team-name>" }).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Owning team. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = "platform" }.`,
+				Attributes: map[string]schema.Attribute{
+					"value": schema.StringAttribute{
+						Computed: true,
+					},
+				},
 			},
 			"template_params": schema.StringAttribute{
 				Computed:    true,

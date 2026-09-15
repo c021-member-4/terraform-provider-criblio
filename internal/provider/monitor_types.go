@@ -29,10 +29,10 @@ type MonitorModel struct {
 	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
 	Name            types.String         `tfsdk:"name" json:"name,omitempty"`
 	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
-	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
+	Priority        types.Object         `tfsdk:"priority" json:"priority,omitempty"`
 	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
 	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
-	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
+	Team            types.Object         `tfsdk:"team" json:"team,omitempty"`
 	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
 	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
 	Unit            types.String         `tfsdk:"unit" json:"unit,omitempty"`
@@ -51,10 +51,10 @@ type MonitorResourceModel struct {
 	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
 	Name            types.String         `tfsdk:"name" json:"name,omitempty"`
 	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
-	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
+	Priority        types.Object         `tfsdk:"priority" json:"priority,omitempty"`
 	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
 	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
-	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
+	Team            types.Object         `tfsdk:"team" json:"team,omitempty"`
 	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
 	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
 	Unit            types.String         `tfsdk:"unit" json:"unit,omitempty"`
@@ -73,10 +73,10 @@ type MonitorDataSourceModel struct {
 	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
 	Name            types.String         `tfsdk:"name" json:"name,omitempty"`
 	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
-	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
+	Priority        types.Object         `tfsdk:"priority" json:"priority,omitempty"`
 	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
 	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
-	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
+	Team            types.Object         `tfsdk:"team" json:"team,omitempty"`
 	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
 	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
 	Unit            types.String         `tfsdk:"unit" json:"unit,omitempty"`
@@ -102,6 +102,34 @@ type MonitorAPIModel struct {
 	TemplateParams  any     `json:"templateParams,omitempty"`
 	Type            *string `json:"type,omitempty"`
 	Unit            *string `json:"unit,omitempty"`
+}
+
+type MonitorPriorityModel struct {
+	Value types.String `tfsdk:"value" json:"value,omitempty"`
+}
+
+type MonitorPriorityAPIModel struct {
+	Value *string `json:"value,omitempty"`
+}
+
+func MonitorPriorityAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"value": types.StringType,
+	}
+}
+
+type MonitorTeamModel struct {
+	Value types.String `tfsdk:"value" json:"value,omitempty"`
+}
+
+type MonitorTeamAPIModel struct {
+	Value *string `json:"value,omitempty"`
+}
+
+func MonitorTeamAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"value": types.StringType,
+	}
 }
 
 func MonitorTerraformValueToJSON(value attr.Value) (any, error) {
@@ -443,7 +471,7 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		output["notification"] = value
 	}
 	if !m.Priority.IsNull() && !m.Priority.IsUnknown() {
-		value, err := MonitorObjectJSONFromTerraformValue(m.Priority)
+		value, err := MonitorTerraformValueToJSON(m.Priority)
 		if err != nil {
 			return nil, fmt.Errorf("convert priority to API value: %v", err)
 		}
@@ -464,7 +492,7 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		output["searchMode"] = value
 	}
 	if !m.Team.IsNull() && !m.Team.IsUnknown() {
-		value, err := MonitorObjectJSONFromTerraformValue(m.Team)
+		value, err := MonitorTerraformValueToJSON(m.Team)
 		if err != nil {
 			return nil, fmt.Errorf("convert team to API value: %v", err)
 		}
@@ -584,13 +612,13 @@ func (m *MonitorModel) UnmarshalJSON(data []byte) error {
 		m.Notification = jsontypes.NewNormalizedNull()
 	}
 	if input.Priority != nil {
-		raw, err := json.Marshal(input.Priority)
+		value, err := MonitorAPIValueToTerraformValue(input.Priority, types.ObjectType{AttrTypes: MonitorPriorityAttrTypes()})
 		if err != nil {
 			return fmt.Errorf("convert priority from API value: %v", err)
 		}
-		m.Priority = jsontypes.NewNormalizedValue(string(raw))
+		m.Priority = value.(types.Object)
 	} else {
-		m.Priority = jsontypes.NewNormalizedNull()
+		m.Priority = types.ObjectNull(MonitorPriorityAttrTypes())
 	}
 	if input.Query != nil {
 		raw, err := json.Marshal(input.Query)
@@ -607,13 +635,13 @@ func (m *MonitorModel) UnmarshalJSON(data []byte) error {
 		m.SearchMode = types.StringNull()
 	}
 	if input.Team != nil {
-		raw, err := json.Marshal(input.Team)
+		value, err := MonitorAPIValueToTerraformValue(input.Team, types.ObjectType{AttrTypes: MonitorTeamAttrTypes()})
 		if err != nil {
 			return fmt.Errorf("convert team from API value: %v", err)
 		}
-		m.Team = jsontypes.NewNormalizedValue(string(raw))
+		m.Team = value.(types.Object)
 	} else {
-		m.Team = jsontypes.NewNormalizedNull()
+		m.Team = types.ObjectNull(MonitorTeamAttrTypes())
 	}
 	if input.TemplateParams != nil {
 		raw, err := json.Marshal(input.TemplateParams)

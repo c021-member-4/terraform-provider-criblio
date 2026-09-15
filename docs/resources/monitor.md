@@ -23,8 +23,8 @@ resource "criblio_monitor" "my_monitor" {
   type       = "threshold"
   dataset_id = "metrics"
 
-  priority = jsonencode({ value = "P2" })
-  team     = jsonencode({ value = "platform" })
+  priority = { value = "P2" }
+  team     = { value = "platform" }
 
   query = jsonencode({
     A = {
@@ -74,9 +74,9 @@ resource "criblio_monitor" "my_monitor" {
 - `metadata` (String) Arbitrary key-value metadata. Use jsonencode({}).
 - `name` (String) Human-readable name for the monitor.
 - `notification` (String) Notification configuration for the monitor. Use jsonencode({ enabled = false, type = "policy", config = [] }).
-- `priority` (String) Monitor priority, inheritable from a linked profile. Use jsonencode({ value = "P1" }).
+- `priority` (Attributes) Monitor priority. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = "P1" }. (see [below for nested schema](#nestedatt--priority))
 - `query` (String) Monitor queries keyed by query label. Use jsonencode({ A = { mode = "promql", promql = "..." } }).
-- `team` (String) Owning team, inheritable from a linked profile. Use jsonencode({ value = "<team-name>" }).
+- `team` (Attributes) Owning team. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = "platform" }. (see [below for nested schema](#nestedatt--team))
 - `type` (String) Monitor type, which determines the detection strategy (for example threshold, change, anomaly, outlier, forecast, or logs).
 
 ### Optional
@@ -90,6 +90,14 @@ resource "criblio_monitor" "my_monitor" {
 ### Read-Only
 
 - `managed_by` (String) Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133).
+
+<a id="nestedatt--priority"></a>
+<a id="nestedatt--team"></a>
+### Nested Schema for `priority`
+
+Required:
+
+- `value` (String)
 
 ## Import
 

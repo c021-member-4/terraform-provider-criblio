@@ -123,12 +123,18 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Description: `Notification configuration for the monitor. Use jsonencode({ enabled = false, type = "policy", config = [] }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
-			"priority": schema.StringAttribute{
+			"priority": schema.SingleNestedAttribute{
 				Required:    true,
 				Optional:    false,
 				Computed:    false,
-				Description: `Monitor priority, inheritable from a linked profile. Use jsonencode({ value = "P1" }).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Monitor priority. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = "P1" }.`,
+				Attributes: map[string]schema.Attribute{
+					"value": schema.StringAttribute{
+						Required: true,
+						Optional: false,
+						Computed: false,
+					},
+				},
 			},
 			"query": schema.StringAttribute{
 				Required:    true,
@@ -143,12 +149,18 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed:    true,
 				Description: `Logs monitors only. Distinguishes authoring a fresh search ('new') from selecting a saved one ('saved'). Defaults to 'new' when omitted; ignored for non-logs monitor types.`,
 			},
-			"team": schema.StringAttribute{
+			"team": schema.SingleNestedAttribute{
 				Required:    true,
 				Optional:    false,
 				Computed:    false,
-				Description: `Owning team, inheritable from a linked profile. Use jsonencode({ value = "<team-name>" }).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Owning team. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = "platform" }.`,
+				Attributes: map[string]schema.Attribute{
+					"value": schema.StringAttribute{
+						Required: true,
+						Optional: false,
+						Computed: false,
+					},
+				},
 			},
 			"template_params": schema.StringAttribute{
 				Required:    false,
@@ -382,6 +394,9 @@ func applyMonitorAPIToState(api *MonitorModel, state *MonitorModel, preserveInpu
 			state.Priority = api.Priority
 		}
 	}
+	if len(state.Priority.AttributeTypes(context.Background())) == 0 {
+		state.Priority = types.ObjectNull(MonitorPriorityAttrTypes())
+	}
 	if !preserveInputs || (fillMissingInputs && (state.Query.IsNull() || state.Query.IsUnknown())) {
 		if !api.Query.IsNull() && !api.Query.IsUnknown() {
 			state.Query = api.Query
@@ -397,6 +412,9 @@ func applyMonitorAPIToState(api *MonitorModel, state *MonitorModel, preserveInpu
 		if !api.Team.IsNull() && !api.Team.IsUnknown() {
 			state.Team = api.Team
 		}
+	}
+	if len(state.Team.AttributeTypes(context.Background())) == 0 {
+		state.Team = types.ObjectNull(MonitorTeamAttrTypes())
 	}
 	if !preserveInputs || (fillMissingInputs && (state.TemplateParams.IsNull() || state.TemplateParams.IsUnknown())) {
 		if !api.TemplateParams.IsNull() && !api.TemplateParams.IsUnknown() {

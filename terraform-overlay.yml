@@ -3687,6 +3687,17 @@ actions:
   # added because upstream omits it; $profileRef is UI-only and `$` is no legal Go identifier.
   # silence is excluded alongside it: no criblio_silence resource exists to create the IDs it
   # references, so the field would be unvalidated config surface with no capability behind it.
+  # TODO(MON-762 follow-up): both are linked-resource surfaces (profiles/shared configs,
+  # silence windows) intentionally deferred to keep this version's scope tight -- not a
+  # permanent limitation. Drop x-terraform-ignore once criblio_monitor_profile / criblio_silence
+  # exist.
+  #
+  # Design note for that future work: every Inheritable field below (priority, team, query,
+  # firingCondition, firingRule, metadata, notification) is deliberately kept Required so
+  # existing configs stay explicit; deriving from a linked profile later should flip these to
+  # Optional+Computed (same idiom as searchMode/unit above) -- unset = inherit from profile,
+  # set = wins, no separate override flag needed. None of these need a type change to get
+  # there (priority/team are already objects, not bare strings, for exactly this reason).
   - target: "$.components.schemas.AetosMonitorConf.properties"
     update:
       "$profileRef":
@@ -3723,22 +3734,24 @@ actions:
         - team
         - type
 
-  # Structured fields flatten to jsontypes.Normalized (jsonencode() in HCL). replace, not
-  # update: codegen resolves $ref ahead of `type`, so the upstream $ref has to go.
+  # priority/team are `oneOf[ScalarValue, Inheritable]` upstream (profile-linked or inline).
+  # Profile linkage is unsupported here (see $profileRef), so the Inheritable branch is
+  # unreachable in this provider anyway -- collapse to the concrete ScalarValue schema
+  # instead of opaque JSON, same $ref-narrowing pattern used for GenericProvider above.
+  # replace, not update: codegen resolves $ref ahead of `type`, so the oneOf has to go.
+  # TODO(MON-762 follow-up): revisit this collapse once profile linkage is supported --
+  # these two will need to become Inheritable again, same as every other field below.
   - target: "$.components.schemas.AetosMonitorConf.properties.priority"
     replace:
-      type: object
-      additionalProperties: true
-      x-terraform-custom-type: jsontypes.NormalizedType{}
-      x-terraform-object-as-json: true
-      description: "Monitor priority, inheritable from a linked profile. Use jsonencode({ value = \"P1\" })."
+      $ref: "#/components/schemas/ScalarValue"
+      description: "Monitor priority. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = \"P1\" }."
   - target: "$.components.schemas.AetosMonitorConf.properties.team"
     replace:
-      type: object
-      additionalProperties: true
-      x-terraform-custom-type: jsontypes.NormalizedType{}
-      x-terraform-object-as-json: true
-      description: "Owning team, inheritable from a linked profile. Use jsonencode({ value = \"<team-name>\" })."
+      $ref: "#/components/schemas/ScalarValue"
+      description: "Owning team. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = \"platform\" }."
+
+  # Structured fields flatten to jsontypes.Normalized (jsonencode() in HCL). replace, not
+  # update: codegen resolves $ref ahead of `type`, so the upstream $ref has to go.
   - target: "$.components.schemas.AetosMonitorConf.properties.query"
     replace:
       type: object
