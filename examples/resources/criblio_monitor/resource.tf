@@ -11,20 +11,20 @@ resource "criblio_monitor" "my_monitor" {
   priority = { value = "P2" }
   team     = { value = "platform" }
 
-  query = jsonencode({
+  query = {
     A = {
-      mode      = "promql"
-      datasetId = "metrics"
-      promql    = "avg by (host) (cpu_usage_percent)"
+      mode       = "promql"
+      dataset_id = "metrics"
+      promql     = "avg by (host) (cpu_usage_percent)"
     }
-  })
+  }
 
-  expr = jsonencode([])
+  expr = []
 
-  firing_condition = jsonencode({
+  firing_condition = {
     fire_delay  = 300
     clear_delay = 60
-  })
+  }
 
   firing_rule = {
     label = "A"
@@ -40,6 +40,6 @@ resource "criblio_monitor" "my_monitor" {
     ]
   }
 
-  metadata     = jsonencode({})
+  metadata     = {}
   notification = jsonencode({ enabled = false, type = "policy", config = [] })
 }

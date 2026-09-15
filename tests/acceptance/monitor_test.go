@@ -97,20 +97,20 @@ resource "criblio_monitor" "test" {
   priority = { value = "P3" }
   team     = { value = "platform" }
 
-  query = jsonencode({
+  query = {
     A = {
-      mode      = "promql"
-      datasetId = "metrics"
-      promql    = "up"
+      mode       = "promql"
+      dataset_id = "metrics"
+      promql     = "up"
     }
-  })
+  }
 
-  expr = jsonencode([])
+  expr = []
 
-  firing_condition = jsonencode({
+  firing_condition = {
     fire_delay  = 300
     clear_delay = 60
-  })
+  }
 
   firing_rule = {
     label = ""
@@ -124,7 +124,7 @@ resource "criblio_monitor" "test" {
     }]
   }
 
-  metadata     = jsonencode({})
+  metadata     = {}
   notification = jsonencode({ enabled = false, type = "policy", config = [] })
 }
 

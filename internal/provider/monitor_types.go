@@ -21,16 +21,16 @@ type MonitorModel struct {
 	Description     types.String         `tfsdk:"description" json:"description,omitempty"`
 	DetectionConfig jsontypes.Normalized `tfsdk:"detection_config" json:"detectionConfig,omitempty"`
 	Enabled         types.Bool           `tfsdk:"enabled" json:"enabled,omitempty"`
-	Expr            jsontypes.Normalized `tfsdk:"expr" json:"expr,omitempty"`
-	FiringCondition jsontypes.Normalized `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
+	Expr            types.List           `tfsdk:"expr" json:"expr,omitempty"`
+	FiringCondition types.Object         `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
 	FiringRule      types.Object         `tfsdk:"firing_rule" json:"firingRule,omitempty"`
 	ID              types.String         `tfsdk:"id" json:"id,omitempty"`
 	ManagedBy       types.String         `tfsdk:"managed_by" json:"managedBy,omitempty"`
-	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
+	Metadata        types.Map            `tfsdk:"metadata" json:"metadata,omitempty"`
 	Name            types.String         `tfsdk:"name" json:"name,omitempty"`
 	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
 	Priority        types.Object         `tfsdk:"priority" json:"priority,omitempty"`
-	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
+	Query           types.Map            `tfsdk:"query" json:"query,omitempty"`
 	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
 	Team            types.Object         `tfsdk:"team" json:"team,omitempty"`
 	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
@@ -43,16 +43,16 @@ type MonitorResourceModel struct {
 	Description     types.String         `tfsdk:"description" json:"description,omitempty"`
 	DetectionConfig jsontypes.Normalized `tfsdk:"detection_config" json:"detectionConfig,omitempty"`
 	Enabled         types.Bool           `tfsdk:"enabled" json:"enabled,omitempty"`
-	Expr            jsontypes.Normalized `tfsdk:"expr" json:"expr,omitempty"`
-	FiringCondition jsontypes.Normalized `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
+	Expr            types.List           `tfsdk:"expr" json:"expr,omitempty"`
+	FiringCondition types.Object         `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
 	FiringRule      types.Object         `tfsdk:"firing_rule" json:"firingRule,omitempty"`
 	ID              types.String         `tfsdk:"id" json:"id,omitempty"`
 	ManagedBy       types.String         `tfsdk:"managed_by" json:"managedBy,omitempty"`
-	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
+	Metadata        types.Map            `tfsdk:"metadata" json:"metadata,omitempty"`
 	Name            types.String         `tfsdk:"name" json:"name,omitempty"`
 	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
 	Priority        types.Object         `tfsdk:"priority" json:"priority,omitempty"`
-	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
+	Query           types.Map            `tfsdk:"query" json:"query,omitempty"`
 	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
 	Team            types.Object         `tfsdk:"team" json:"team,omitempty"`
 	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
@@ -65,16 +65,16 @@ type MonitorDataSourceModel struct {
 	Description     types.String         `tfsdk:"description" json:"description,omitempty"`
 	DetectionConfig jsontypes.Normalized `tfsdk:"detection_config" json:"detectionConfig,omitempty"`
 	Enabled         types.Bool           `tfsdk:"enabled" json:"enabled,omitempty"`
-	Expr            jsontypes.Normalized `tfsdk:"expr" json:"expr,omitempty"`
-	FiringCondition jsontypes.Normalized `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
+	Expr            types.List           `tfsdk:"expr" json:"expr,omitempty"`
+	FiringCondition types.Object         `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
 	FiringRule      types.Object         `tfsdk:"firing_rule" json:"firingRule,omitempty"`
 	ID              types.String         `tfsdk:"id" json:"id,omitempty"`
 	ManagedBy       types.String         `tfsdk:"managed_by" json:"managedBy,omitempty"`
-	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
+	Metadata        types.Map            `tfsdk:"metadata" json:"metadata,omitempty"`
 	Name            types.String         `tfsdk:"name" json:"name,omitempty"`
 	Notification    jsontypes.Normalized `tfsdk:"notification" json:"notification,omitempty"`
 	Priority        types.Object         `tfsdk:"priority" json:"priority,omitempty"`
-	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
+	Query           types.Map            `tfsdk:"query" json:"query,omitempty"`
 	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
 	Team            types.Object         `tfsdk:"team" json:"team,omitempty"`
 	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
@@ -83,25 +83,77 @@ type MonitorDataSourceModel struct {
 }
 
 type MonitorAPIModel struct {
-	DatasetID       *string `json:"datasetId,omitempty"`
-	Description     *string `json:"description,omitempty"`
-	DetectionConfig any     `json:"detectionConfig,omitempty"`
-	Enabled         *bool   `json:"enabled,omitempty"`
-	Expr            any     `json:"expr,omitempty"`
-	FiringCondition any     `json:"firingCondition,omitempty"`
-	FiringRule      any     `json:"firingRule,omitempty"`
-	ID              *string `json:"id,omitempty"`
-	ManagedBy       *string `json:"managedBy,omitempty"`
-	Metadata        any     `json:"metadata,omitempty"`
-	Name            *string `json:"name,omitempty"`
-	Notification    any     `json:"notification,omitempty"`
-	Priority        any     `json:"priority,omitempty"`
-	Query           any     `json:"query,omitempty"`
-	SearchMode      *string `json:"searchMode,omitempty"`
-	Team            any     `json:"team,omitempty"`
-	TemplateParams  any     `json:"templateParams,omitempty"`
-	Type            *string `json:"type,omitempty"`
-	Unit            *string `json:"unit,omitempty"`
+	DatasetID       *string           `json:"datasetId,omitempty"`
+	Description     *string           `json:"description,omitempty"`
+	DetectionConfig any               `json:"detectionConfig,omitempty"`
+	Enabled         *bool             `json:"enabled,omitempty"`
+	Expr            any               `json:"expr,omitempty"`
+	FiringCondition any               `json:"firingCondition,omitempty"`
+	FiringRule      any               `json:"firingRule,omitempty"`
+	ID              *string           `json:"id,omitempty"`
+	ManagedBy       *string           `json:"managedBy,omitempty"`
+	Metadata        map[string]string `json:"metadata,omitempty"`
+	Name            *string           `json:"name,omitempty"`
+	Notification    any               `json:"notification,omitempty"`
+	Priority        any               `json:"priority,omitempty"`
+	Query           any               `json:"query,omitempty"`
+	SearchMode      *string           `json:"searchMode,omitempty"`
+	Team            any               `json:"team,omitempty"`
+	TemplateParams  any               `json:"templateParams,omitempty"`
+	Type            *string           `json:"type,omitempty"`
+	Unit            *string           `json:"unit,omitempty"`
+}
+
+type MonitorExprModel struct {
+	DatasetID   types.String  `tfsdk:"dataset_id" json:"datasetId,omitempty"`
+	Label       types.String  `tfsdk:"label" json:"label,omitempty"`
+	Left        types.String  `tfsdk:"left" json:"left,omitempty"`
+	Operation   types.String  `tfsdk:"operation" json:"operation,omitempty"`
+	QueryLabels types.List    `tfsdk:"query_labels" json:"queryLabels,omitempty"`
+	Right       types.String  `tfsdk:"right" json:"right,omitempty"`
+	Scalar      types.Float64 `tfsdk:"scalar" json:"scalar,omitempty"`
+	Text        types.String  `tfsdk:"text" json:"text,omitempty"`
+}
+
+type MonitorExprAPIModel struct {
+	DatasetID   *string  `json:"datasetId,omitempty"`
+	Label       *string  `json:"label,omitempty"`
+	Left        *string  `json:"left,omitempty"`
+	Operation   *string  `json:"operation,omitempty"`
+	QueryLabels []string `json:"queryLabels,omitempty"`
+	Right       *string  `json:"right,omitempty"`
+	Scalar      *float64 `json:"scalar,omitempty"`
+	Text        *string  `json:"text,omitempty"`
+}
+
+func MonitorExprAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"dataset_id":   types.StringType,
+		"label":        types.StringType,
+		"left":         types.StringType,
+		"operation":    types.StringType,
+		"query_labels": types.ListType{ElemType: types.StringType},
+		"right":        types.StringType,
+		"scalar":       types.Float64Type,
+		"text":         types.StringType,
+	}
+}
+
+type MonitorFiringConditionModel struct {
+	ClearDelay types.Float64 `tfsdk:"clear_delay" json:"clear_delay,omitempty"`
+	FireDelay  types.Float64 `tfsdk:"fire_delay" json:"fire_delay,omitempty"`
+}
+
+type MonitorFiringConditionAPIModel struct {
+	ClearDelay *float64 `json:"clear_delay,omitempty"`
+	FireDelay  *float64 `json:"fire_delay,omitempty"`
+}
+
+func MonitorFiringConditionAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"clear_delay": types.Float64Type,
+		"fire_delay":  types.Float64Type,
+	}
 }
 
 type MonitorFiringRuleModel struct {
@@ -234,6 +286,153 @@ func MonitorPriorityAttrTypes() map[string]attr.Type {
 	}
 }
 
+type MonitorQueryModel struct {
+	Builder     types.Object `tfsdk:"builder" json:"builder,omitempty"`
+	DatasetID   types.String `tfsdk:"dataset_id" json:"datasetId,omitempty"`
+	DisplayName types.String `tfsdk:"display_name" json:"displayName,omitempty"`
+	LogsBuilder types.Object `tfsdk:"logs_builder" json:"logsBuilder,omitempty"`
+	Mode        types.String `tfsdk:"mode" json:"mode,omitempty"`
+	Params      types.Map    `tfsdk:"params" json:"params,omitempty"`
+	Promql      types.String `tfsdk:"promql" json:"promql,omitempty"`
+}
+
+type MonitorQueryAPIModel struct {
+	Builder     any               `json:"builder,omitempty"`
+	DatasetID   *string           `json:"datasetId,omitempty"`
+	DisplayName *string           `json:"displayName,omitempty"`
+	LogsBuilder any               `json:"logsBuilder,omitempty"`
+	Mode        *string           `json:"mode,omitempty"`
+	Params      map[string]string `json:"params,omitempty"`
+	Promql      *string           `json:"promql,omitempty"`
+}
+
+func MonitorQueryAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"builder":      types.ObjectType{AttrTypes: MonitorQueryBuilderAttrTypes()},
+		"dataset_id":   types.StringType,
+		"display_name": types.StringType,
+		"logs_builder": types.ObjectType{AttrTypes: MonitorQueryLogsBuilderAttrTypes()},
+		"mode":         types.StringType,
+		"params":       types.MapType{ElemType: types.StringType},
+		"promql":       types.StringType,
+	}
+}
+
+type MonitorQueryBuilderModel struct {
+	Aggregation      types.String `tfsdk:"aggregation" json:"aggregation,omitempty"`
+	EvaluationWindow types.Object `tfsdk:"evaluation_window" json:"evaluationWindow,omitempty"`
+	GroupBy          types.List   `tfsdk:"group_by" json:"groupBy,omitempty"`
+	LabelFilters     types.List   `tfsdk:"label_filters" json:"labelFilters,omitempty"`
+	Metric           types.String `tfsdk:"metric" json:"metric,omitempty"`
+	Units            types.String `tfsdk:"units" json:"units,omitempty"`
+}
+
+type MonitorQueryBuilderAPIModel struct {
+	Aggregation      *string  `json:"aggregation,omitempty"`
+	EvaluationWindow any      `json:"evaluationWindow,omitempty"`
+	GroupBy          []string `json:"groupBy,omitempty"`
+	LabelFilters     any      `json:"labelFilters,omitempty"`
+	Metric           *string  `json:"metric,omitempty"`
+	Units            *string  `json:"units,omitempty"`
+}
+
+func MonitorQueryBuilderAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"aggregation":       types.StringType,
+		"evaluation_window": types.ObjectType{AttrTypes: MonitorQueryBuilderEvaluationWindowAttrTypes()},
+		"group_by":          types.ListType{ElemType: types.StringType},
+		"label_filters":     types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorQueryBuilderLabelFiltersAttrTypes()}},
+		"metric":            types.StringType,
+		"units":             types.StringType,
+	}
+}
+
+type MonitorQueryBuilderEvaluationWindowModel struct {
+	Unit  types.String  `tfsdk:"unit" json:"unit,omitempty"`
+	Value types.Float64 `tfsdk:"value" json:"value,omitempty"`
+}
+
+type MonitorQueryBuilderEvaluationWindowAPIModel struct {
+	Unit  *string  `json:"unit,omitempty"`
+	Value *float64 `json:"value,omitempty"`
+}
+
+func MonitorQueryBuilderEvaluationWindowAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"unit":  types.StringType,
+		"value": types.Float64Type,
+	}
+}
+
+type MonitorQueryBuilderLabelFiltersModel struct {
+	Key   types.String `tfsdk:"key" json:"key,omitempty"`
+	Op    types.String `tfsdk:"op" json:"op,omitempty"`
+	Value types.String `tfsdk:"value" json:"value,omitempty"`
+}
+
+type MonitorQueryBuilderLabelFiltersAPIModel struct {
+	Key   *string `json:"key,omitempty"`
+	Op    *string `json:"op,omitempty"`
+	Value *string `json:"value,omitempty"`
+}
+
+func MonitorQueryBuilderLabelFiltersAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"key":   types.StringType,
+		"op":    types.StringType,
+		"value": types.StringType,
+	}
+}
+
+type MonitorQueryLogsBuilderModel struct {
+	Dataset          types.String `tfsdk:"dataset" json:"dataset,omitempty"`
+	EvaluationWindow types.Object `tfsdk:"evaluation_window" json:"evaluationWindow,omitempty"`
+	Field            types.String `tfsdk:"field" json:"field,omitempty"`
+	GroupBy          types.List   `tfsdk:"group_by" json:"groupBy,omitempty"`
+	Operator         types.String `tfsdk:"operator" json:"operator,omitempty"`
+	ParentSearch     types.String `tfsdk:"parent_search" json:"parentSearch,omitempty"`
+	SavedSearchID    types.String `tfsdk:"saved_search_id" json:"savedSearchId,omitempty"`
+}
+
+type MonitorQueryLogsBuilderAPIModel struct {
+	Dataset          *string  `json:"dataset,omitempty"`
+	EvaluationWindow any      `json:"evaluationWindow,omitempty"`
+	Field            *string  `json:"field,omitempty"`
+	GroupBy          []string `json:"groupBy,omitempty"`
+	Operator         *string  `json:"operator,omitempty"`
+	ParentSearch     *string  `json:"parentSearch,omitempty"`
+	SavedSearchID    *string  `json:"savedSearchId,omitempty"`
+}
+
+func MonitorQueryLogsBuilderAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"dataset":           types.StringType,
+		"evaluation_window": types.ObjectType{AttrTypes: MonitorQueryLogsBuilderEvaluationWindowAttrTypes()},
+		"field":             types.StringType,
+		"group_by":          types.ListType{ElemType: types.StringType},
+		"operator":          types.StringType,
+		"parent_search":     types.StringType,
+		"saved_search_id":   types.StringType,
+	}
+}
+
+type MonitorQueryLogsBuilderEvaluationWindowModel struct {
+	Unit  types.String  `tfsdk:"unit" json:"unit,omitempty"`
+	Value types.Float64 `tfsdk:"value" json:"value,omitempty"`
+}
+
+type MonitorQueryLogsBuilderEvaluationWindowAPIModel struct {
+	Unit  *string  `json:"unit,omitempty"`
+	Value *float64 `json:"value,omitempty"`
+}
+
+func MonitorQueryLogsBuilderEvaluationWindowAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"unit":  types.StringType,
+		"value": types.Float64Type,
+	}
+}
+
 type MonitorTeamModel struct {
 	Value types.String `tfsdk:"value" json:"value,omitempty"`
 }
@@ -346,6 +545,12 @@ func MonitorTerraformNameToAPIName(name string) string {
 	if strings.HasPrefix(name, "__template_") {
 		prefix = "__template_"
 		name = strings.TrimPrefix(name, prefix)
+	}
+	switch name {
+	case "clear_delay":
+		return prefix + "clear_delay"
+	case "fire_delay":
+		return prefix + "fire_delay"
 	}
 	var output strings.Builder
 	upperNext := false
@@ -538,14 +743,14 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		output["enabled"] = value
 	}
 	if !m.Expr.IsNull() && !m.Expr.IsUnknown() {
-		value, err := MonitorObjectJSONFromTerraformValue(m.Expr)
+		value, err := MonitorTerraformValueToJSON(m.Expr)
 		if err != nil {
 			return nil, fmt.Errorf("convert expr to API value: %v", err)
 		}
 		output["expr"] = value
 	}
 	if !m.FiringCondition.IsNull() && !m.FiringCondition.IsUnknown() {
-		value, err := MonitorObjectJSONFromTerraformValue(m.FiringCondition)
+		value, err := MonitorTerraformValueToJSON(m.FiringCondition)
 		if err != nil {
 			return nil, fmt.Errorf("convert firing_condition to API value: %v", err)
 		}
@@ -566,7 +771,7 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		output["id"] = value
 	}
 	if !m.Metadata.IsNull() && !m.Metadata.IsUnknown() {
-		value, err := MonitorObjectJSONFromTerraformValue(m.Metadata)
+		value, err := MonitorTerraformValueToJSON(m.Metadata)
 		if err != nil {
 			return nil, fmt.Errorf("convert metadata to API value: %v", err)
 		}
@@ -594,7 +799,7 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		output["priority"] = value
 	}
 	if !m.Query.IsNull() && !m.Query.IsUnknown() {
-		value, err := MonitorObjectJSONFromTerraformValue(m.Query)
+		value, err := MonitorTerraformValueToJSON(m.Query)
 		if err != nil {
 			return nil, fmt.Errorf("convert query to API value: %v", err)
 		}
@@ -668,22 +873,22 @@ func (m *MonitorModel) UnmarshalJSON(data []byte) error {
 		m.Enabled = types.BoolNull()
 	}
 	if input.Expr != nil {
-		raw, err := json.Marshal(input.Expr)
+		value, err := MonitorAPIValueToTerraformValue(input.Expr, types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorExprAttrTypes()}})
 		if err != nil {
 			return fmt.Errorf("convert expr from API value: %v", err)
 		}
-		m.Expr = jsontypes.NewNormalizedValue(string(raw))
+		m.Expr = value.(types.List)
 	} else {
-		m.Expr = jsontypes.NewNormalizedNull()
+		m.Expr = types.ListNull(types.ObjectType{AttrTypes: MonitorExprAttrTypes()})
 	}
 	if input.FiringCondition != nil {
-		raw, err := json.Marshal(input.FiringCondition)
+		value, err := MonitorAPIValueToTerraformValue(input.FiringCondition, types.ObjectType{AttrTypes: MonitorFiringConditionAttrTypes()})
 		if err != nil {
 			return fmt.Errorf("convert firingCondition from API value: %v", err)
 		}
-		m.FiringCondition = jsontypes.NewNormalizedValue(string(raw))
+		m.FiringCondition = value.(types.Object)
 	} else {
-		m.FiringCondition = jsontypes.NewNormalizedNull()
+		m.FiringCondition = types.ObjectNull(MonitorFiringConditionAttrTypes())
 	}
 	if input.FiringRule != nil {
 		value, err := MonitorAPIValueToTerraformValue(input.FiringRule, types.ObjectType{AttrTypes: MonitorFiringRuleAttrTypes()})
@@ -705,13 +910,13 @@ func (m *MonitorModel) UnmarshalJSON(data []byte) error {
 		m.ManagedBy = types.StringNull()
 	}
 	if input.Metadata != nil {
-		raw, err := json.Marshal(input.Metadata)
-		if err != nil {
-			return fmt.Errorf("convert metadata from API value: %v", err)
+		value, diags := types.MapValueFrom(context.Background(), types.StringType, input.Metadata)
+		if diags.HasError() {
+			return fmt.Errorf("convert metadata from API value: %v", diags)
 		}
-		m.Metadata = jsontypes.NewNormalizedValue(string(raw))
+		m.Metadata = value
 	} else {
-		m.Metadata = jsontypes.NewNormalizedNull()
+		m.Metadata = types.MapNull(types.StringType)
 	}
 	if input.Name != nil {
 		m.Name = types.StringValue(*input.Name)
@@ -737,13 +942,13 @@ func (m *MonitorModel) UnmarshalJSON(data []byte) error {
 		m.Priority = types.ObjectNull(MonitorPriorityAttrTypes())
 	}
 	if input.Query != nil {
-		raw, err := json.Marshal(input.Query)
+		value, err := MonitorAPIValueToTerraformValue(input.Query, types.MapType{ElemType: types.ObjectType{AttrTypes: MonitorQueryAttrTypes()}})
 		if err != nil {
 			return fmt.Errorf("convert query from API value: %v", err)
 		}
-		m.Query = jsontypes.NewNormalizedValue(string(raw))
+		m.Query = value.(types.Map)
 	} else {
-		m.Query = jsontypes.NewNormalizedNull()
+		m.Query = types.MapNull(types.ObjectType{AttrTypes: MonitorQueryAttrTypes()})
 	}
 	if input.SearchMode != nil {
 		m.SearchMode = types.StringValue(*input.SearchMode)

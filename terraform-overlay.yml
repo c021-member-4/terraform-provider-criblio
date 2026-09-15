@@ -3753,27 +3753,19 @@ actions:
 
   # Structured fields flatten to jsontypes.Normalized (jsonencode() in HCL). replace, not
   # update: codegen resolves $ref ahead of `type`, so the upstream $ref has to go.
-  - target: "$.components.schemas.AetosMonitorConf.properties.query"
+  # query is a map (type: object, additionalProperties: $ref) whose VALUE is
+  # oneOf[AetosMonitorQuery, Inheritable] -- narrow the value's $ref, keep the map shape.
+  - target: "$.components.schemas.AetosMonitorConf.properties.query.additionalProperties"
     replace:
-      type: object
-      additionalProperties: true
-      x-terraform-custom-type: jsontypes.NormalizedType{}
-      x-terraform-object-as-json: true
-      description: "Monitor queries keyed by query label. Use jsonencode({ A = { mode = \"promql\", promql = \"...\" } })."
-  - target: "$.components.schemas.AetosMonitorConf.properties.expr"
-    replace:
-      type: object
-      additionalProperties: true
-      x-terraform-custom-type: jsontypes.NormalizedType{}
-      x-terraform-object-as-json: true
-      description: "Query expressions evaluated to produce the monitor's series. Use jsonencode([...])."
+      $ref: "#/components/schemas/AetosMonitorQuery"
+  # expr is a plain array upstream (type: array, items: $ref QueryExpression) -- not even
+  # Inheritable, so no overlay override needed at all; upstream's shape is already correct.
+  # firingCondition is oneOf[FiringCondition, Inheritable] upstream, same shape as
+  # priority/team -- narrow to the concrete schema instead of opaque JSON.
   - target: "$.components.schemas.AetosMonitorConf.properties.firingCondition"
     replace:
-      type: object
-      additionalProperties: true
-      x-terraform-custom-type: jsontypes.NormalizedType{}
-      x-terraform-object-as-json: true
-      description: "Condition that determines when the monitor fires. Use jsonencode({ fire_delay = N, clear_delay = M })."
+      $ref: "#/components/schemas/FiringCondition"
+      description: "Condition that determines when the monitor fires. Profile-linked inheritance is not supported by this provider yet."
   # firingRule is oneOf[FiringRule, Inheritable] upstream, same shape as priority/team.
   # Profile linkage unsupported here (see $profileRef), so narrow to the concrete FiringRule
   # schema instead of opaque JSON -- same $ref-narrowing pattern, just a deeper nested shape.
@@ -3782,13 +3774,12 @@ actions:
     replace:
       $ref: "#/components/schemas/FiringRule"
       description: "Rule defining firing thresholds and overrides. Profile-linked inheritance is not supported by this provider yet."
+  # metadata is oneOf[AetosMetadata, Inheritable] upstream, AetosMetadata itself being a
+  # real typed string map (additionalProperties: {type: string}) -- narrow to it directly.
   - target: "$.components.schemas.AetosMonitorConf.properties.metadata"
     replace:
-      type: object
-      additionalProperties: true
-      x-terraform-custom-type: jsontypes.NormalizedType{}
-      x-terraform-object-as-json: true
-      description: "Arbitrary key-value metadata. Use jsonencode({})."
+      $ref: "#/components/schemas/AetosMetadata"
+      description: "Arbitrary key-value metadata. Profile-linked inheritance is not supported by this provider yet."
   - target: "$.components.schemas.AetosMonitorConf.properties.notification"
     replace:
       type: object
@@ -3796,6 +3787,12 @@ actions:
       x-terraform-custom-type: jsontypes.NormalizedType{}
       x-terraform-object-as-json: true
       description: "Notification configuration for the monitor. Use jsonencode({ enabled = false, type = \"policy\", config = [] })."
+  # templateParams' value is a map-of-map once narrowed (Record<label, Record<string,string>>).
+  # tools/codegen/parser.go's map-detection (~line 949) only recurses one level -- a value
+  # schema that's itself additionalProperties (no `properties` key) silently falls back to a
+  # flat string-valued map, losing the inner nesting. Real codegen limitation, not fixable
+  # here without shipping a silently-wrong schema -- filed as INFRA-12649, left as opaque
+  # JSON until fixed.
   - target: "$.components.schemas.AetosMonitorConf.properties.templateParams"
     replace:
       type: object

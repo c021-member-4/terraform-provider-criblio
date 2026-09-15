@@ -66,19 +66,74 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed:    false,
 				Description: `Whether the monitor is active and evaluated.`,
 			},
-			"expr": schema.StringAttribute{
+			"expr": schema.ListNestedAttribute{
 				Required:    true,
 				Optional:    false,
 				Computed:    false,
-				Description: `Query expressions evaluated to produce the monitor's series. Use jsonencode([...]).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Query expressions evaluated to produce the monitor's series.`,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"dataset_id": schema.StringAttribute{
+							Required: false,
+							Optional: true,
+							Computed: false,
+						},
+						"label": schema.StringAttribute{
+							Required: true,
+							Optional: false,
+							Computed: false,
+						},
+						"left": schema.StringAttribute{
+							Required: false,
+							Optional: true,
+							Computed: false,
+						},
+						"operation": schema.StringAttribute{
+							Required: false,
+							Optional: true,
+							Computed: false,
+						},
+						"query_labels": schema.ListAttribute{
+							Required:    true,
+							Optional:    false,
+							Computed:    false,
+							ElementType: types.StringType,
+						},
+						"right": schema.StringAttribute{
+							Required: false,
+							Optional: true,
+							Computed: false,
+						},
+						"scalar": schema.Float64Attribute{
+							Required: false,
+							Optional: true,
+							Computed: false,
+						},
+						"text": schema.StringAttribute{
+							Required: true,
+							Optional: false,
+							Computed: false,
+						},
+					},
+				},
 			},
-			"firing_condition": schema.StringAttribute{
+			"firing_condition": schema.SingleNestedAttribute{
 				Required:    true,
 				Optional:    false,
 				Computed:    false,
-				Description: `Condition that determines when the monitor fires. Use jsonencode({ fire_delay = N, clear_delay = M }).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Condition that determines when the monitor fires. Profile-linked inheritance is not supported by this provider yet.`,
+				Attributes: map[string]schema.Attribute{
+					"clear_delay": schema.Float64Attribute{
+						Required: true,
+						Optional: false,
+						Computed: false,
+					},
+					"fire_delay": schema.Float64Attribute{
+						Required: true,
+						Optional: false,
+						Computed: false,
+					},
+				},
 			},
 			"firing_rule": schema.SingleNestedAttribute{
 				Required:    true,
@@ -242,12 +297,12 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed:    true,
 				Description: `Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133).`,
 			},
-			"metadata": schema.StringAttribute{
+			"metadata": schema.MapAttribute{
 				Required:    true,
 				Optional:    false,
 				Computed:    false,
-				Description: `Arbitrary key-value metadata. Use jsonencode({}).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Arbitrary key-value metadata. Profile-linked inheritance is not supported by this provider yet.`,
+				ElementType: types.StringType,
 			},
 			"name": schema.StringAttribute{
 				Required:    true,
@@ -275,12 +330,169 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					},
 				},
 			},
-			"query": schema.StringAttribute{
+			"query": schema.MapNestedAttribute{
 				Required:    true,
 				Optional:    false,
 				Computed:    false,
-				Description: `Monitor queries keyed by query label. Use jsonencode({ A = { mode = "promql", promql = "..." } }).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Monitor queries keyed by query label. Each query is inheritable from a linked profile.`,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"builder": schema.SingleNestedAttribute{
+							Required: false,
+							Optional: true,
+							Computed: false,
+							Attributes: map[string]schema.Attribute{
+								"aggregation": schema.StringAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+								},
+								"evaluation_window": schema.SingleNestedAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+									Attributes: map[string]schema.Attribute{
+										"unit": schema.StringAttribute{
+											Required:    true,
+											Optional:    false,
+											Computed:    false,
+											Description: `Time unit for the evaluation window magnitude (for example , , , ).`,
+										},
+										"value": schema.Float64Attribute{
+											Required:    true,
+											Optional:    false,
+											Computed:    false,
+											Description: `Numeric magnitude of the evaluation window, paired with (for example in "5m").`,
+										},
+									},
+								},
+								"group_by": schema.ListAttribute{
+									Required:    true,
+									Optional:    false,
+									Computed:    false,
+									ElementType: types.StringType,
+								},
+								"label_filters": schema.ListNestedAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"key": schema.StringAttribute{
+												Required: true,
+												Optional: false,
+												Computed: false,
+											},
+											"op": schema.StringAttribute{
+												Required: true,
+												Optional: false,
+												Computed: false,
+											},
+											"value": schema.StringAttribute{
+												Required: true,
+												Optional: false,
+												Computed: false,
+											},
+										},
+									},
+								},
+								"metric": schema.StringAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+								},
+								"units": schema.StringAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+								},
+							},
+						},
+						"dataset_id": schema.StringAttribute{
+							Required: false,
+							Optional: true,
+							Computed: false,
+						},
+						"display_name": schema.StringAttribute{
+							Required: false,
+							Optional: true,
+							Computed: false,
+						},
+						"logs_builder": schema.SingleNestedAttribute{
+							Required: false,
+							Optional: true,
+							Computed: false,
+							Attributes: map[string]schema.Attribute{
+								"dataset": schema.StringAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+								},
+								"evaluation_window": schema.SingleNestedAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+									Attributes: map[string]schema.Attribute{
+										"unit": schema.StringAttribute{
+											Required:    true,
+											Optional:    false,
+											Computed:    false,
+											Description: `Time unit for the evaluation window magnitude (for example , , , ).`,
+										},
+										"value": schema.Float64Attribute{
+											Required:    true,
+											Optional:    false,
+											Computed:    false,
+											Description: `Numeric magnitude of the evaluation window, paired with (for example in "5m").`,
+										},
+									},
+								},
+								"field": schema.StringAttribute{
+									Required: false,
+									Optional: true,
+									Computed: false,
+								},
+								"group_by": schema.ListAttribute{
+									Required:    true,
+									Optional:    false,
+									Computed:    false,
+									ElementType: types.StringType,
+								},
+								"operator": schema.StringAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+								},
+								"parent_search": schema.StringAttribute{
+									Required: false,
+									Optional: true,
+									Computed: false,
+								},
+								"saved_search_id": schema.StringAttribute{
+									Required: false,
+									Optional: true,
+									Computed: false,
+								},
+							},
+						},
+						"mode": schema.StringAttribute{
+							Required: true,
+							Optional: false,
+							Computed: false,
+						},
+						"params": schema.MapAttribute{
+							Required:    false,
+							Optional:    true,
+							Computed:    false,
+							ElementType: types.StringType,
+						},
+						"promql": schema.StringAttribute{
+							Required: true,
+							Optional: false,
+							Computed: false,
+						},
+					},
+				},
 			},
 			"search_mode": schema.StringAttribute{
 				Required:    false,
@@ -488,15 +700,23 @@ func applyMonitorAPIToState(api *MonitorModel, state *MonitorModel, preserveInpu
 			state.Enabled = api.Enabled
 		}
 	}
-	if !preserveInputs || (fillMissingInputs && (state.Expr.IsNull() || state.Expr.IsUnknown())) {
+	if !preserveInputs || (fillMissingInputs && (state.Expr.IsNull() || state.Expr.IsUnknown())) || (!api.Expr.IsNull() && !api.Expr.IsUnknown() && !state.Expr.IsNull() && !state.Expr.IsUnknown() && len(state.Expr.Elements()) == 0) {
 		if !api.Expr.IsNull() && !api.Expr.IsUnknown() {
 			state.Expr = api.Expr
 		}
+	}
+	if state.Expr.IsNull() || state.Expr.IsUnknown() {
+		state.Expr = types.ListNull(types.ObjectType{AttrTypes: MonitorExprAttrTypes()})
+	} else if len(state.Expr.Elements()) == 0 {
+		state.Expr = types.ListValueMust(types.ObjectType{AttrTypes: MonitorExprAttrTypes()}, nil)
 	}
 	if !preserveInputs || (fillMissingInputs && (state.FiringCondition.IsNull() || state.FiringCondition.IsUnknown())) {
 		if !api.FiringCondition.IsNull() && !api.FiringCondition.IsUnknown() {
 			state.FiringCondition = api.FiringCondition
 		}
+	}
+	if len(state.FiringCondition.AttributeTypes(context.Background())) == 0 {
+		state.FiringCondition = types.ObjectNull(MonitorFiringConditionAttrTypes())
 	}
 	if !preserveInputs || (fillMissingInputs && (state.FiringRule.IsNull() || state.FiringRule.IsUnknown())) {
 		if !api.FiringRule.IsNull() && !api.FiringRule.IsUnknown() {
@@ -521,6 +741,13 @@ func applyMonitorAPIToState(api *MonitorModel, state *MonitorModel, preserveInpu
 			state.Metadata = api.Metadata
 		}
 	}
+	if state.Metadata.IsNull() || state.Metadata.IsUnknown() {
+		state.Metadata = types.MapNull(types.StringType)
+	} else if elementType := state.Metadata.ElementType(context.Background()); elementType == nil || !elementType.Equal(types.StringType) {
+		if len(state.Metadata.Elements()) == 0 {
+			state.Metadata = types.MapNull(types.StringType)
+		}
+	}
 	if !preserveInputs || (fillMissingInputs && (state.Name.IsNull() || state.Name.IsUnknown())) {
 		if !api.Name.IsNull() && !api.Name.IsUnknown() {
 			state.Name = api.Name
@@ -543,6 +770,11 @@ func applyMonitorAPIToState(api *MonitorModel, state *MonitorModel, preserveInpu
 		if !api.Query.IsNull() && !api.Query.IsUnknown() {
 			state.Query = api.Query
 		}
+	}
+	if state.Query.IsNull() || state.Query.IsUnknown() {
+		state.Query = types.MapNull(types.ObjectType{AttrTypes: MonitorQueryAttrTypes()})
+	} else if len(state.Query.Elements()) == 0 {
+		state.Query = types.MapValueMust(types.ObjectType{AttrTypes: MonitorQueryAttrTypes()}, nil)
 	}
 	if !api.SearchMode.IsNull() && !api.SearchMode.IsUnknown() {
 		state.SearchMode = api.SearchMode

@@ -52,15 +52,50 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 				Computed:    true,
 				Description: `Whether the monitor is active and evaluated.`,
 			},
-			"expr": schema.StringAttribute{
+			"expr": schema.ListNestedAttribute{
 				Computed:    true,
-				Description: `Query expressions evaluated to produce the monitor's series. Use jsonencode([...]).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Query expressions evaluated to produce the monitor's series.`,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"dataset_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"label": schema.StringAttribute{
+							Computed: true,
+						},
+						"left": schema.StringAttribute{
+							Computed: true,
+						},
+						"operation": schema.StringAttribute{
+							Computed: true,
+						},
+						"query_labels": schema.ListAttribute{
+							Computed:    true,
+							ElementType: types.StringType,
+						},
+						"right": schema.StringAttribute{
+							Computed: true,
+						},
+						"scalar": schema.Float64Attribute{
+							Computed: true,
+						},
+						"text": schema.StringAttribute{
+							Computed: true,
+						},
+					},
+				},
 			},
-			"firing_condition": schema.StringAttribute{
+			"firing_condition": schema.SingleNestedAttribute{
 				Computed:    true,
-				Description: `Condition that determines when the monitor fires. Use jsonencode({ fire_delay = N, clear_delay = M }).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Condition that determines when the monitor fires. Profile-linked inheritance is not supported by this provider yet.`,
+				Attributes: map[string]schema.Attribute{
+					"clear_delay": schema.Float64Attribute{
+						Computed: true,
+					},
+					"fire_delay": schema.Float64Attribute{
+						Computed: true,
+					},
+				},
 			},
 			"firing_rule": schema.SingleNestedAttribute{
 				Computed:    true,
@@ -166,10 +201,10 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 				Computed:    true,
 				Description: `Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133).`,
 			},
-			"metadata": schema.StringAttribute{
+			"metadata": schema.MapAttribute{
 				Computed:    true,
-				Description: `Arbitrary key-value metadata. Use jsonencode({}).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Arbitrary key-value metadata. Profile-linked inheritance is not supported by this provider yet.`,
+				ElementType: types.StringType,
 			},
 			"name": schema.StringAttribute{
 				Computed:    true,
@@ -189,10 +224,113 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 					},
 				},
 			},
-			"query": schema.StringAttribute{
+			"query": schema.MapNestedAttribute{
 				Computed:    true,
-				Description: `Monitor queries keyed by query label. Use jsonencode({ A = { mode = "promql", promql = "..." } }).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Monitor queries keyed by query label. Each query is inheritable from a linked profile.`,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"builder": schema.SingleNestedAttribute{
+							Computed: true,
+							Attributes: map[string]schema.Attribute{
+								"aggregation": schema.StringAttribute{
+									Computed: true,
+								},
+								"evaluation_window": schema.SingleNestedAttribute{
+									Computed: true,
+									Attributes: map[string]schema.Attribute{
+										"unit": schema.StringAttribute{
+											Computed:    true,
+											Description: `Time unit for the evaluation window magnitude (for example , , , ).`,
+										},
+										"value": schema.Float64Attribute{
+											Computed:    true,
+											Description: `Numeric magnitude of the evaluation window, paired with (for example in "5m").`,
+										},
+									},
+								},
+								"group_by": schema.ListAttribute{
+									Computed:    true,
+									ElementType: types.StringType,
+								},
+								"label_filters": schema.ListNestedAttribute{
+									Computed: true,
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"key": schema.StringAttribute{
+												Computed: true,
+											},
+											"op": schema.StringAttribute{
+												Computed: true,
+											},
+											"value": schema.StringAttribute{
+												Computed: true,
+											},
+										},
+									},
+								},
+								"metric": schema.StringAttribute{
+									Computed: true,
+								},
+								"units": schema.StringAttribute{
+									Computed: true,
+								},
+							},
+						},
+						"dataset_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"display_name": schema.StringAttribute{
+							Computed: true,
+						},
+						"logs_builder": schema.SingleNestedAttribute{
+							Computed: true,
+							Attributes: map[string]schema.Attribute{
+								"dataset": schema.StringAttribute{
+									Computed: true,
+								},
+								"evaluation_window": schema.SingleNestedAttribute{
+									Computed: true,
+									Attributes: map[string]schema.Attribute{
+										"unit": schema.StringAttribute{
+											Computed:    true,
+											Description: `Time unit for the evaluation window magnitude (for example , , , ).`,
+										},
+										"value": schema.Float64Attribute{
+											Computed:    true,
+											Description: `Numeric magnitude of the evaluation window, paired with (for example in "5m").`,
+										},
+									},
+								},
+								"field": schema.StringAttribute{
+									Computed: true,
+								},
+								"group_by": schema.ListAttribute{
+									Computed:    true,
+									ElementType: types.StringType,
+								},
+								"operator": schema.StringAttribute{
+									Computed: true,
+								},
+								"parent_search": schema.StringAttribute{
+									Computed: true,
+								},
+								"saved_search_id": schema.StringAttribute{
+									Computed: true,
+								},
+							},
+						},
+						"mode": schema.StringAttribute{
+							Computed: true,
+						},
+						"params": schema.MapAttribute{
+							Computed:    true,
+							ElementType: types.StringType,
+						},
+						"promql": schema.StringAttribute{
+							Computed: true,
+						},
+					},
+				},
 			},
 			"search_mode": schema.StringAttribute{
 				Computed:    true,

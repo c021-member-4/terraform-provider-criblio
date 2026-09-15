@@ -67,15 +67,15 @@ resource "criblio_monitor" "my_monitor" {
 
 - `dataset_id` (String) Default dataset used for query execution and alert history storage. Per-query overrides are set via the query's datasetId.
 - `enabled` (Boolean) Whether the monitor is active and evaluated.
-- `expr` (String) Query expressions evaluated to produce the monitor's series. Use jsonencode([...]).
-- `firing_condition` (String) Condition that determines when the monitor fires. Use jsonencode({ fire_delay = N, clear_delay = M }).
+- `expr` (Attributes List) Query expressions evaluated to produce the monitor's series. (see [below for nested schema](#nestedatt--expr))
+- `firing_condition` (Attributes) Condition that determines when the monitor fires. Profile-linked inheritance is not supported by this provider yet. (see [below for nested schema](#nestedatt--firing_condition))
 - `firing_rule` (Attributes) Rule defining firing thresholds and overrides. Profile-linked inheritance is not supported by this provider yet. (see [below for nested schema](#nestedatt--firing_rule))
 - `id` (String) Unique identifier for the monitor.
-- `metadata` (String) Arbitrary key-value metadata. Use jsonencode({}).
+- `metadata` (Map of String) Arbitrary key-value metadata. Profile-linked inheritance is not supported by this provider yet.
 - `name` (String) Human-readable name for the monitor.
 - `notification` (String) Notification configuration for the monitor. Use jsonencode({ enabled = false, type = "policy", config = [] }).
 - `priority` (Attributes) Monitor priority. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = "P1" }. (see [below for nested schema](#nestedatt--priority))
-- `query` (String) Monitor queries keyed by query label. Use jsonencode({ A = { mode = "promql", promql = "..." } }).
+- `query` (Attributes Map) Monitor queries keyed by query label. Each query is inheritable from a linked profile. (see [below for nested schema](#nestedatt--query))
 - `team` (Attributes) Owning team. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = "platform" }. (see [below for nested schema](#nestedatt--team))
 - `type` (String) Monitor type, which determines the detection strategy (for example threshold, change, anomaly, outlier, forecast, or logs).
 
@@ -90,6 +90,31 @@ resource "criblio_monitor" "my_monitor" {
 ### Read-Only
 
 - `managed_by` (String) Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133).
+
+<a id="nestedatt--expr"></a>
+### Nested Schema for `expr`
+
+Required:
+
+- `label` (String)
+- `query_labels` (List of String)
+- `text` (String)
+
+Optional:
+
+- `dataset_id` (String)
+- `left` (String)
+- `operation` (String)
+- `right` (String)
+- `scalar` (Number)
+
+<a id="nestedatt--firing_condition"></a>
+### Nested Schema for `firing_condition`
+
+Required:
+
+- `clear_delay` (Number)
+- `fire_delay` (Number)
 
 <a id="nestedatt--firing_rule"></a>
 ### Nested Schema for `firing_rule`
@@ -143,6 +168,68 @@ Optional:
 Required:
 
 - `value` (String)
+
+<a id="nestedatt--query"></a>
+### Nested Schema for `query`
+
+Required:
+
+- `mode` (String)
+- `promql` (String)
+
+Optional:
+
+- `builder` (Attributes) (see [below for nested schema](#nestedatt--query--builder))
+- `dataset_id` (String)
+- `display_name` (String)
+- `logs_builder` (Attributes) (see [below for nested schema](#nestedatt--query--logs_builder))
+- `params` (Map of String)
+
+<a id="nestedatt--query--builder"></a>
+### Nested Schema for `query.builder`
+
+Required:
+
+- `aggregation` (String)
+- `evaluation_window` (Attributes) (see [below for nested schema](#nestedatt--query--builder--evaluation_window))
+- `group_by` (List of String)
+- `label_filters` (Attributes List) (see [below for nested schema](#nestedatt--query--builder--label_filters))
+- `metric` (String)
+- `units` (String)
+
+<a id="nestedatt--query--builder--evaluation_window"></a>
+<a id="nestedatt--query--logs_builder--evaluation_window"></a>
+### Nested Schema for `query.builder.evaluation_window`
+
+Required:
+
+- `unit` (String) Time unit for the evaluation window magnitude (for example , , , ).
+- `value` (Number) Numeric magnitude of the evaluation window, paired with (for example in "5m").
+
+<a id="nestedatt--query--builder--label_filters"></a>
+### Nested Schema for `query.builder.label_filters`
+
+Required:
+
+- `key` (String)
+- `op` (String)
+- `value` (String)
+
+<a id="nestedatt--query--logs_builder"></a>
+### Nested Schema for `query.logs_builder`
+
+Required:
+
+- `dataset` (String)
+- `evaluation_window` (Attributes) (see [below for nested schema](#nestedatt--query--logs_builder--evaluation_window))
+- `group_by` (List of String)
+- `operator` (String)
+
+Optional:
+
+- `field` (String)
+- `parent_search` (String)
+- `saved_search_id` (String)
 
 ## Import
 

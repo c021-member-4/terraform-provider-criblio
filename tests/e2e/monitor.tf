@@ -10,18 +10,18 @@ resource "criblio_monitor" "demo" {
   priority = { value = "P2" }
   team     = { value = "ops" }
 
-  # Query keyed by label "A". In a real monitor include datasetId per-query:
-  # A = { mode = "promql", promql = "...", datasetId = "metrics" }
-  query = jsonencode({
+  # Query keyed by label "A". In a real monitor include dataset_id per-query:
+  # A = { mode = "promql", promql = "...", dataset_id = "metrics" }
+  query = {
     A = { mode = "promql", promql = "up" }
-  })
+  }
 
-  expr = jsonencode([])
+  expr = []
 
-  firing_condition = jsonencode({
+  firing_condition = {
     fire_delay  = 300
     clear_delay = 60
-  })
+  }
 
   firing_rule = {
     label = "down"
@@ -36,7 +36,7 @@ resource "criblio_monitor" "demo" {
     ]
   }
 
-  metadata     = jsonencode({})
+  metadata     = {}
   notification = jsonencode({ enabled = false, type = "policy", config = [] })
 }
 
