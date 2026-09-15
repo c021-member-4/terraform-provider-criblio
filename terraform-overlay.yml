@@ -3685,9 +3685,13 @@ actions:
 
   # Scalars and enums are adopted as-is; only Terraform metadata is merged in. managedBy is
   # added because upstream omits it; $profileRef is UI-only and `$` is no legal Go identifier.
+  # silence is excluded alongside it: no criblio_silence resource exists to create the IDs it
+  # references, so the field would be unvalidated config surface with no capability behind it.
   - target: "$.components.schemas.AetosMonitorConf.properties"
     update:
       "$profileRef":
+        x-terraform-ignore: true
+      silence:
         x-terraform-ignore: true
       id:
         x-terraform-force-new: true
@@ -3700,6 +3704,24 @@ actions:
         type: string
         x-terraform-computed: true
         description: "Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133)."
+
+  # Upstream's required list restated without silence, which is ignored above.
+  - target: "$.components.schemas.AetosMonitorConf"
+    update:
+      required:
+        - datasetId
+        - enabled
+        - expr
+        - firingCondition
+        - firingRule
+        - id
+        - metadata
+        - name
+        - notification
+        - priority
+        - query
+        - team
+        - type
 
   # Structured fields flatten to jsontypes.Normalized (jsonencode() in HCL). replace, not
   # update: codegen resolves $ref ahead of `type`, so the upstream $ref has to go.

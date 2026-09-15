@@ -103,11 +103,6 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 				Computed:    true,
 				Description: `Logs monitors only. Distinguishes authoring a fresh search ('new') from selecting a saved one ('saved'). Defaults to 'new' when omitted; ignored for non-logs monitor types.`,
 			},
-			"silence": schema.ListAttribute{
-				Computed:    true,
-				Description: `IDs of silence windows that suppress this monitor's alerts.`,
-				ElementType: types.StringType,
-			},
 			"team": schema.StringAttribute{
 				Computed:    true,
 				Description: `Owning team, inheritable from a linked profile. Use jsonencode({ value = "<team-name>" }).`,

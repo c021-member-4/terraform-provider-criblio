@@ -14,6 +14,8 @@ Monitor Resource
 
 ```terraform
 # $profileRef is intentionally unsupported: it is UI-only and has no Terraform-authoring use case.
+# silence is intentionally unsupported: there is no criblio_silence resource to create the
+# windows it references, so the field is excluded until one exists.
 resource "criblio_monitor" "my_monitor" {
   id         = "high-cpu-usage"
   name       = "High CPU usage"
@@ -55,7 +57,6 @@ resource "criblio_monitor" "my_monitor" {
 
   metadata     = jsonencode({})
   notification = jsonencode({ enabled = false, type = "policy", config = [] })
-  silence      = []
 }
 ```
 
@@ -75,7 +76,6 @@ resource "criblio_monitor" "my_monitor" {
 - `notification` (String) Notification configuration for the monitor. Use jsonencode({ enabled = false, type = "policy", config = [] }).
 - `priority` (String) Monitor priority, inheritable from a linked profile. Use jsonencode({ value = "P1" }).
 - `query` (String) Monitor queries keyed by query label. Use jsonencode({ A = { mode = "promql", promql = "..." } }).
-- `silence` (List of String) IDs of silence windows that suppress this monitor's alerts.
 - `team` (String) Owning team, inheritable from a linked profile. Use jsonencode({ value = "<team-name>" }).
 - `type` (String) Monitor type, which determines the detection strategy (for example threshold, change, anomaly, outlier, forecast, or logs).
 

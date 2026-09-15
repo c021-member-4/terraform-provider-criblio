@@ -32,7 +32,6 @@ type MonitorModel struct {
 	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
 	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
 	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
-	Silence         types.List           `tfsdk:"silence" json:"silence,omitempty"`
 	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
 	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
 	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
@@ -55,7 +54,6 @@ type MonitorResourceModel struct {
 	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
 	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
 	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
-	Silence         []types.String       `tfsdk:"silence" json:"silence,omitempty"`
 	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
 	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
 	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
@@ -78,7 +76,6 @@ type MonitorDataSourceModel struct {
 	Priority        jsontypes.Normalized `tfsdk:"priority" json:"priority,omitempty"`
 	Query           jsontypes.Normalized `tfsdk:"query" json:"query,omitempty"`
 	SearchMode      types.String         `tfsdk:"search_mode" json:"searchMode,omitempty"`
-	Silence         []types.String       `tfsdk:"silence" json:"silence,omitempty"`
 	Team            jsontypes.Normalized `tfsdk:"team" json:"team,omitempty"`
 	TemplateParams  jsontypes.Normalized `tfsdk:"template_params" json:"templateParams,omitempty"`
 	Type            types.String         `tfsdk:"type" json:"type,omitempty"`
@@ -86,26 +83,25 @@ type MonitorDataSourceModel struct {
 }
 
 type MonitorAPIModel struct {
-	DatasetID       *string  `json:"datasetId,omitempty"`
-	Description     *string  `json:"description,omitempty"`
-	DetectionConfig any      `json:"detectionConfig,omitempty"`
-	Enabled         *bool    `json:"enabled,omitempty"`
-	Expr            any      `json:"expr,omitempty"`
-	FiringCondition any      `json:"firingCondition,omitempty"`
-	FiringRule      any      `json:"firingRule,omitempty"`
-	ID              *string  `json:"id,omitempty"`
-	ManagedBy       *string  `json:"managedBy,omitempty"`
-	Metadata        any      `json:"metadata,omitempty"`
-	Name            *string  `json:"name,omitempty"`
-	Notification    any      `json:"notification,omitempty"`
-	Priority        any      `json:"priority,omitempty"`
-	Query           any      `json:"query,omitempty"`
-	SearchMode      *string  `json:"searchMode,omitempty"`
-	Silence         []string `json:"silence,omitempty"`
-	Team            any      `json:"team,omitempty"`
-	TemplateParams  any      `json:"templateParams,omitempty"`
-	Type            *string  `json:"type,omitempty"`
-	Unit            *string  `json:"unit,omitempty"`
+	DatasetID       *string `json:"datasetId,omitempty"`
+	Description     *string `json:"description,omitempty"`
+	DetectionConfig any     `json:"detectionConfig,omitempty"`
+	Enabled         *bool   `json:"enabled,omitempty"`
+	Expr            any     `json:"expr,omitempty"`
+	FiringCondition any     `json:"firingCondition,omitempty"`
+	FiringRule      any     `json:"firingRule,omitempty"`
+	ID              *string `json:"id,omitempty"`
+	ManagedBy       *string `json:"managedBy,omitempty"`
+	Metadata        any     `json:"metadata,omitempty"`
+	Name            *string `json:"name,omitempty"`
+	Notification    any     `json:"notification,omitempty"`
+	Priority        any     `json:"priority,omitempty"`
+	Query           any     `json:"query,omitempty"`
+	SearchMode      *string `json:"searchMode,omitempty"`
+	Team            any     `json:"team,omitempty"`
+	TemplateParams  any     `json:"templateParams,omitempty"`
+	Type            *string `json:"type,omitempty"`
+	Unit            *string `json:"unit,omitempty"`
 }
 
 func MonitorTerraformValueToJSON(value attr.Value) (any, error) {
@@ -467,13 +463,6 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		}
 		output["searchMode"] = value
 	}
-	if !m.Silence.IsNull() && !m.Silence.IsUnknown() {
-		value, err := MonitorTerraformValueToJSON(m.Silence)
-		if err != nil {
-			return nil, fmt.Errorf("convert silence to API value: %v", err)
-		}
-		output["silence"] = value
-	}
 	if !m.Team.IsNull() && !m.Team.IsUnknown() {
 		value, err := MonitorObjectJSONFromTerraformValue(m.Team)
 		if err != nil {
@@ -616,15 +605,6 @@ func (m *MonitorModel) UnmarshalJSON(data []byte) error {
 		m.SearchMode = types.StringValue(*input.SearchMode)
 	} else {
 		m.SearchMode = types.StringNull()
-	}
-	if input.Silence != nil {
-		value, diags := types.ListValueFrom(context.Background(), types.StringType, input.Silence)
-		if diags.HasError() {
-			return fmt.Errorf("convert silence from API value: %v", diags)
-		}
-		m.Silence = value
-	} else {
-		m.Silence = types.ListNull(types.StringType)
 	}
 	if input.Team != nil {
 		raw, err := json.Marshal(input.Team)

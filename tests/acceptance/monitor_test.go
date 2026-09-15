@@ -126,7 +126,6 @@ resource "criblio_monitor" "test" {
 
   metadata     = jsonencode({})
   notification = jsonencode({ enabled = false, type = "policy", config = [] })
-  silence      = ["sil_test_placeholder"]
 }
 
 data "criblio_monitor" "test" {

@@ -143,13 +143,6 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed:    true,
 				Description: `Logs monitors only. Distinguishes authoring a fresh search ('new') from selecting a saved one ('saved'). Defaults to 'new' when omitted; ignored for non-logs monitor types.`,
 			},
-			"silence": schema.ListAttribute{
-				Required:    true,
-				Optional:    false,
-				Computed:    false,
-				Description: `IDs of silence windows that suppress this monitor's alerts.`,
-				ElementType: types.StringType,
-			},
 			"team": schema.StringAttribute{
 				Required:    true,
 				Optional:    false,
@@ -310,9 +303,6 @@ func isMonitorImportState(state *MonitorModel) bool {
 	if state.Query.IsNull() || state.Query.IsUnknown() {
 		return true
 	}
-	if state.Silence.IsNull() || state.Silence.IsUnknown() {
-		return true
-	}
 	if state.Team.IsNull() || state.Team.IsUnknown() {
 		return true
 	}
@@ -402,14 +392,6 @@ func applyMonitorAPIToState(api *MonitorModel, state *MonitorModel, preserveInpu
 	}
 	if state.SearchMode.IsUnknown() {
 		state.SearchMode = types.StringNull()
-	}
-	if !preserveInputs || (fillMissingInputs && (state.Silence.IsNull() || state.Silence.IsUnknown())) {
-		if !api.Silence.IsNull() && !api.Silence.IsUnknown() {
-			state.Silence = api.Silence
-		}
-	}
-	if elementType := state.Silence.ElementType(context.Background()); elementType == nil {
-		state.Silence = types.ListNull(types.StringType)
 	}
 	if !preserveInputs || (fillMissingInputs && (state.Team.IsNull() || state.Team.IsUnknown())) {
 		if !api.Team.IsNull() && !api.Team.IsUnknown() {

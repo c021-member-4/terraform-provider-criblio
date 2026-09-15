@@ -1,4 +1,6 @@
 # $profileRef is intentionally unsupported: it is UI-only and has no Terraform-authoring use case.
+# silence is intentionally unsupported: there is no criblio_silence resource to create the
+# windows it references, so the field is excluded until one exists.
 resource "criblio_monitor" "my_monitor" {
   id         = "high-cpu-usage"
   name       = "High CPU usage"
@@ -40,5 +42,4 @@ resource "criblio_monitor" "my_monitor" {
 
   metadata     = jsonencode({})
   notification = jsonencode({ enabled = false, type = "policy", config = [] })
-  silence      = []
 }
