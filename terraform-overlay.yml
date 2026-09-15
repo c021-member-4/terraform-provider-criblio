@@ -3696,8 +3696,9 @@ actions:
   # firingCondition, firingRule, metadata, notification) is deliberately kept Required so
   # existing configs stay explicit; deriving from a linked profile later should flip these to
   # Optional+Computed (same idiom as searchMode/unit above) -- unset = inherit from profile,
-  # set = wins, no separate override flag needed. None of these need a type change to get
-  # there (priority/team are already objects, not bare strings, for exactly this reason).
+  # set = wins, no separate override flag needed. That flip is a non-breaking schema change
+  # for all of them regardless of underlying type -- priority/team stay SingleNestedAttribute
+  # objects, the rest stay jsontypes.Normalized JSON strings; neither shape needs to change.
   - target: "$.components.schemas.AetosMonitorConf.properties"
     update:
       "$profileRef":

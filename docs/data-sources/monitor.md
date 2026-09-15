@@ -38,11 +38,18 @@ data "criblio_monitor" "my_monitor" {
 - `metadata` (String) Metadata as JSON. Use jsonencode({}).
 - `name` (String)
 - `notification` (String) Notification config as JSON.
-- `priority` (String) Priority config as JSON. Use jsonencode({ value = "P1" }).
+- `priority` (Attributes) Monitor priority. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = "P1" }. (see [below for nested schema](#nestedatt--priority))
 - `query` (String) Query config as JSON. Use jsonencode({ A = { mode = "promql", promql = "..." } }).
 - `search_mode` (String) Search mode for logs monitors: 'new' or 'saved'. Defaults to 'new'.
-- `silence` (List of String) IDs of the silence windows that mute this monitor.
-- `team` (String) Team config as JSON. Use jsonencode({ value = "<team-name>" }).
+- `team` (Attributes) Owning team. Profile-linked inheritance is not supported by this provider yet -- set value directly, e.g. { value = "platform" }. (see [below for nested schema](#nestedatt--team))
 - `template_params` (String) Per-query template parameters as JSON, keyed by query label. Use jsonencode({ A = { ... } }).
 - `type` (String)
 - `unit` (String)
+
+<a id="nestedatt--priority"></a>
+<a id="nestedatt--team"></a>
+### Nested Schema for `priority`
+
+Read-Only:
+
+- `value` (String)

@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/criblio/terraform-provider-criblio/internal/auth"
@@ -186,7 +187,7 @@ func (p *CriblioProvider) Configure(ctx context.Context, req provider.ConfigureR
 	}
 
 	innerTransport := http.DefaultTransport
-	if os.Getenv("CRIBL_INSECURE_SKIP_VERIFY") != "" {
+	if skipVerify, _ := strconv.ParseBool(os.Getenv("CRIBL_INSECURE_SKIP_VERIFY")); skipVerify {
 		innerTransport = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
 		}

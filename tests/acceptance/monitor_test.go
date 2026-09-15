@@ -37,7 +37,7 @@ func TestAccMonitor(t *testing.T) {
 
 						// managed_by is computed and stamped by the backend when the
 						// Terraform provider User-Agent is detected.
-						resource.TestCheckResourceAttrSet(resourceName, "managed_by"),
+						resource.TestCheckResourceAttr(resourceName, "managed_by", "terraform"),
 
 						// Data source mirrors the resource.
 						resource.TestCheckResourceAttrPair(

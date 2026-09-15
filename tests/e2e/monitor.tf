@@ -7,8 +7,8 @@ resource "criblio_monitor" "demo" {
   # Dataset the monitor evaluates against; set to the dataset name your workspace uses.
   dataset_id = "metrics"
 
-  priority = jsonencode({ value = "P2" })
-  team     = jsonencode({ value = "ops" })
+  priority = { value = "P2" }
+  team     = { value = "ops" }
 
   # Query keyed by label "A". In a real monitor include datasetId per-query:
   # A = { mode = "promql", promql = "...", datasetId = "metrics" }
@@ -50,7 +50,7 @@ output "monitor_id" {
 }
 
 output "monitor_managed_by" {
-  description = "Stamped to 'terraform' by the backend when speakeasy-sdk/terraform User-Agent is detected."
+  description = "Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133)."
   value       = data.criblio_monitor.demo.managed_by
 }
 

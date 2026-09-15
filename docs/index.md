@@ -22,7 +22,7 @@ terraform {
   required_providers {
     criblio = {
       source  = "criblio/criblio"
-      version = "1.25.85"
+      version = "1.25.86"
     }
   }
 }
