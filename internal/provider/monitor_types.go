@@ -23,7 +23,7 @@ type MonitorModel struct {
 	Enabled         types.Bool           `tfsdk:"enabled" json:"enabled,omitempty"`
 	Expr            jsontypes.Normalized `tfsdk:"expr" json:"expr,omitempty"`
 	FiringCondition jsontypes.Normalized `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
-	FiringRule      jsontypes.Normalized `tfsdk:"firing_rule" json:"firingRule,omitempty"`
+	FiringRule      types.Object         `tfsdk:"firing_rule" json:"firingRule,omitempty"`
 	ID              types.String         `tfsdk:"id" json:"id,omitempty"`
 	ManagedBy       types.String         `tfsdk:"managed_by" json:"managedBy,omitempty"`
 	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
@@ -45,7 +45,7 @@ type MonitorResourceModel struct {
 	Enabled         types.Bool           `tfsdk:"enabled" json:"enabled,omitempty"`
 	Expr            jsontypes.Normalized `tfsdk:"expr" json:"expr,omitempty"`
 	FiringCondition jsontypes.Normalized `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
-	FiringRule      jsontypes.Normalized `tfsdk:"firing_rule" json:"firingRule,omitempty"`
+	FiringRule      types.Object         `tfsdk:"firing_rule" json:"firingRule,omitempty"`
 	ID              types.String         `tfsdk:"id" json:"id,omitempty"`
 	ManagedBy       types.String         `tfsdk:"managed_by" json:"managedBy,omitempty"`
 	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
@@ -67,7 +67,7 @@ type MonitorDataSourceModel struct {
 	Enabled         types.Bool           `tfsdk:"enabled" json:"enabled,omitempty"`
 	Expr            jsontypes.Normalized `tfsdk:"expr" json:"expr,omitempty"`
 	FiringCondition jsontypes.Normalized `tfsdk:"firing_condition" json:"firingCondition,omitempty"`
-	FiringRule      jsontypes.Normalized `tfsdk:"firing_rule" json:"firingRule,omitempty"`
+	FiringRule      types.Object         `tfsdk:"firing_rule" json:"firingRule,omitempty"`
 	ID              types.String         `tfsdk:"id" json:"id,omitempty"`
 	ManagedBy       types.String         `tfsdk:"managed_by" json:"managedBy,omitempty"`
 	Metadata        jsontypes.Normalized `tfsdk:"metadata" json:"metadata,omitempty"`
@@ -102,6 +102,122 @@ type MonitorAPIModel struct {
 	TemplateParams  any     `json:"templateParams,omitempty"`
 	Type            *string `json:"type,omitempty"`
 	Unit            *string `json:"unit,omitempty"`
+}
+
+type MonitorFiringRuleModel struct {
+	Label       types.String `tfsdk:"label" json:"label,omitempty"`
+	Overrides   types.List   `tfsdk:"overrides" json:"overrides,omitempty"`
+	ShowOnChart types.Bool   `tfsdk:"show_on_chart" json:"showOnChart,omitempty"`
+	Threshold   types.List   `tfsdk:"threshold" json:"threshold,omitempty"`
+}
+
+type MonitorFiringRuleAPIModel struct {
+	Label       *string `json:"label,omitempty"`
+	Overrides   any     `json:"overrides,omitempty"`
+	ShowOnChart *bool   `json:"showOnChart,omitempty"`
+	Threshold   any     `json:"threshold,omitempty"`
+}
+
+func MonitorFiringRuleAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"label":         types.StringType,
+		"overrides":     types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorFiringRuleOverridesAttrTypes()}},
+		"show_on_chart": types.BoolType,
+		"threshold":     types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorFiringRuleThresholdAttrTypes()}},
+	}
+}
+
+type MonitorFiringRuleOverridesModel struct {
+	Enabled      types.Bool   `tfsdk:"enabled" json:"enabled,omitempty"`
+	ExcludedTags types.List   `tfsdk:"excluded_tags" json:"excludedTags,omitempty"`
+	IncludedTags types.List   `tfsdk:"included_tags" json:"includedTags,omitempty"`
+	Name         types.String `tfsdk:"name" json:"name,omitempty"`
+	ShowOnChart  types.Bool   `tfsdk:"show_on_chart" json:"showOnChart,omitempty"`
+	Threshold    types.List   `tfsdk:"threshold" json:"threshold,omitempty"`
+}
+
+type MonitorFiringRuleOverridesAPIModel struct {
+	Enabled      *bool    `json:"enabled,omitempty"`
+	ExcludedTags []string `json:"excludedTags,omitempty"`
+	IncludedTags []string `json:"includedTags,omitempty"`
+	Name         *string  `json:"name,omitempty"`
+	ShowOnChart  *bool    `json:"showOnChart,omitempty"`
+	Threshold    any      `json:"threshold,omitempty"`
+}
+
+func MonitorFiringRuleOverridesAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled":       types.BoolType,
+		"excluded_tags": types.ListType{ElemType: types.StringType},
+		"included_tags": types.ListType{ElemType: types.StringType},
+		"name":          types.StringType,
+		"show_on_chart": types.BoolType,
+		"threshold":     types.ListType{ElemType: types.ObjectType{AttrTypes: MonitorFiringRuleOverridesThresholdAttrTypes()}},
+	}
+}
+
+type MonitorFiringRuleOverridesThresholdModel struct {
+	ExcludedTags   types.List    `tfsdk:"excluded_tags" json:"excludedTags,omitempty"`
+	IncludedTags   types.List    `tfsdk:"included_tags" json:"includedTags,omitempty"`
+	Limit          types.Float64 `tfsdk:"limit" json:"limit,omitempty"`
+	Operator       types.String  `tfsdk:"operator" json:"operator,omitempty"`
+	Severity       types.String  `tfsdk:"severity" json:"severity,omitempty"`
+	StdDeviations  types.Float64 `tfsdk:"std_deviations" json:"stdDeviations,omitempty"`
+	TimesTriggered types.Float64 `tfsdk:"times_triggered" json:"timesTriggered,omitempty"`
+}
+
+type MonitorFiringRuleOverridesThresholdAPIModel struct {
+	ExcludedTags   []string `json:"excludedTags,omitempty"`
+	IncludedTags   []string `json:"includedTags,omitempty"`
+	Limit          *float64 `json:"limit,omitempty"`
+	Operator       *string  `json:"operator,omitempty"`
+	Severity       *string  `json:"severity,omitempty"`
+	StdDeviations  *float64 `json:"stdDeviations,omitempty"`
+	TimesTriggered *float64 `json:"timesTriggered,omitempty"`
+}
+
+func MonitorFiringRuleOverridesThresholdAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"excluded_tags":   types.ListType{ElemType: types.StringType},
+		"included_tags":   types.ListType{ElemType: types.StringType},
+		"limit":           types.Float64Type,
+		"operator":        types.StringType,
+		"severity":        types.StringType,
+		"std_deviations":  types.Float64Type,
+		"times_triggered": types.Float64Type,
+	}
+}
+
+type MonitorFiringRuleThresholdModel struct {
+	ExcludedTags   types.List    `tfsdk:"excluded_tags" json:"excludedTags,omitempty"`
+	IncludedTags   types.List    `tfsdk:"included_tags" json:"includedTags,omitempty"`
+	Limit          types.Float64 `tfsdk:"limit" json:"limit,omitempty"`
+	Operator       types.String  `tfsdk:"operator" json:"operator,omitempty"`
+	Severity       types.String  `tfsdk:"severity" json:"severity,omitempty"`
+	StdDeviations  types.Float64 `tfsdk:"std_deviations" json:"stdDeviations,omitempty"`
+	TimesTriggered types.Float64 `tfsdk:"times_triggered" json:"timesTriggered,omitempty"`
+}
+
+type MonitorFiringRuleThresholdAPIModel struct {
+	ExcludedTags   []string `json:"excludedTags,omitempty"`
+	IncludedTags   []string `json:"includedTags,omitempty"`
+	Limit          *float64 `json:"limit,omitempty"`
+	Operator       *string  `json:"operator,omitempty"`
+	Severity       *string  `json:"severity,omitempty"`
+	StdDeviations  *float64 `json:"stdDeviations,omitempty"`
+	TimesTriggered *float64 `json:"timesTriggered,omitempty"`
+}
+
+func MonitorFiringRuleThresholdAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"excluded_tags":   types.ListType{ElemType: types.StringType},
+		"included_tags":   types.ListType{ElemType: types.StringType},
+		"limit":           types.Float64Type,
+		"operator":        types.StringType,
+		"severity":        types.StringType,
+		"std_deviations":  types.Float64Type,
+		"times_triggered": types.Float64Type,
+	}
 }
 
 type MonitorPriorityModel struct {
@@ -436,7 +552,7 @@ func (m MonitorModel) MarshalJSON() ([]byte, error) {
 		output["firingCondition"] = value
 	}
 	if !m.FiringRule.IsNull() && !m.FiringRule.IsUnknown() {
-		value, err := MonitorObjectJSONFromTerraformValue(m.FiringRule)
+		value, err := MonitorTerraformValueToJSON(m.FiringRule)
 		if err != nil {
 			return nil, fmt.Errorf("convert firing_rule to API value: %v", err)
 		}
@@ -570,13 +686,13 @@ func (m *MonitorModel) UnmarshalJSON(data []byte) error {
 		m.FiringCondition = jsontypes.NewNormalizedNull()
 	}
 	if input.FiringRule != nil {
-		raw, err := json.Marshal(input.FiringRule)
+		value, err := MonitorAPIValueToTerraformValue(input.FiringRule, types.ObjectType{AttrTypes: MonitorFiringRuleAttrTypes()})
 		if err != nil {
 			return fmt.Errorf("convert firingRule from API value: %v", err)
 		}
-		m.FiringRule = jsontypes.NewNormalizedValue(string(raw))
+		m.FiringRule = value.(types.Object)
 	} else {
-		m.FiringRule = jsontypes.NewNormalizedNull()
+		m.FiringRule = types.ObjectNull(MonitorFiringRuleAttrTypes())
 	}
 	if input.ID != nil {
 		m.ID = types.StringValue(*input.ID)

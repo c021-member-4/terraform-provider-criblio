@@ -112,17 +112,17 @@ resource "criblio_monitor" "test" {
     clear_delay = 60
   })
 
-  firing_rule = jsonencode({
+  firing_rule = {
     label = ""
     threshold = [{
-      severity       = "warning"
-      limit          = 0
-      operator       = "lt"
-      includedTags   = []
-      excludedTags   = []
-      timesTriggered = 1
+      severity        = "warning"
+      limit           = 0
+      operator        = "lt"
+      included_tags   = []
+      excluded_tags   = []
+      times_triggered = 1
     }]
-  })
+  }
 
   metadata     = jsonencode({})
   notification = jsonencode({ enabled = false, type = "policy", config = [] })

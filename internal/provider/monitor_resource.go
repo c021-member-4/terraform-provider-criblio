@@ -80,12 +80,151 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Description: `Condition that determines when the monitor fires. Use jsonencode({ fire_delay = N, clear_delay = M }).`,
 				CustomType:  jsontypes.NormalizedType{},
 			},
-			"firing_rule": schema.StringAttribute{
+			"firing_rule": schema.SingleNestedAttribute{
 				Required:    true,
 				Optional:    false,
 				Computed:    false,
-				Description: `Rule defining firing thresholds and overrides. Use jsonencode({ label = "A", threshold = [...] }).`,
-				CustomType:  jsontypes.NormalizedType{},
+				Description: `Rule defining firing thresholds and overrides. Profile-linked inheritance is not supported by this provider yet.`,
+				Attributes: map[string]schema.Attribute{
+					"label": schema.StringAttribute{
+						Required: true,
+						Optional: false,
+						Computed: false,
+					},
+					"overrides": schema.ListNestedAttribute{
+						Required: false,
+						Optional: true,
+						Computed: false,
+						NestedObject: schema.NestedAttributeObject{
+							Attributes: map[string]schema.Attribute{
+								"enabled": schema.BoolAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+								},
+								"excluded_tags": schema.ListAttribute{
+									Required:    true,
+									Optional:    false,
+									Computed:    false,
+									ElementType: types.StringType,
+								},
+								"included_tags": schema.ListAttribute{
+									Required:    true,
+									Optional:    false,
+									Computed:    false,
+									ElementType: types.StringType,
+								},
+								"name": schema.StringAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+								},
+								"show_on_chart": schema.BoolAttribute{
+									Required: false,
+									Optional: true,
+									Computed: false,
+								},
+								"threshold": schema.ListNestedAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+									NestedObject: schema.NestedAttributeObject{
+										Attributes: map[string]schema.Attribute{
+											"excluded_tags": schema.ListAttribute{
+												Required:    true,
+												Optional:    false,
+												Computed:    false,
+												ElementType: types.StringType,
+											},
+											"included_tags": schema.ListAttribute{
+												Required:    true,
+												Optional:    false,
+												Computed:    false,
+												ElementType: types.StringType,
+											},
+											"limit": schema.Float64Attribute{
+												Required: true,
+												Optional: false,
+												Computed: false,
+											},
+											"operator": schema.StringAttribute{
+												Required: false,
+												Optional: true,
+												Computed: false,
+											},
+											"severity": schema.StringAttribute{
+												Required: true,
+												Optional: false,
+												Computed: false,
+											},
+											"std_deviations": schema.Float64Attribute{
+												Required: false,
+												Optional: true,
+												Computed: false,
+											},
+											"times_triggered": schema.Float64Attribute{
+												Required: false,
+												Optional: true,
+												Computed: false,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					"show_on_chart": schema.BoolAttribute{
+						Required: false,
+						Optional: true,
+						Computed: false,
+					},
+					"threshold": schema.ListNestedAttribute{
+						Required: true,
+						Optional: false,
+						Computed: false,
+						NestedObject: schema.NestedAttributeObject{
+							Attributes: map[string]schema.Attribute{
+								"excluded_tags": schema.ListAttribute{
+									Required:    true,
+									Optional:    false,
+									Computed:    false,
+									ElementType: types.StringType,
+								},
+								"included_tags": schema.ListAttribute{
+									Required:    true,
+									Optional:    false,
+									Computed:    false,
+									ElementType: types.StringType,
+								},
+								"limit": schema.Float64Attribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+								},
+								"operator": schema.StringAttribute{
+									Required: false,
+									Optional: true,
+									Computed: false,
+								},
+								"severity": schema.StringAttribute{
+									Required: true,
+									Optional: false,
+									Computed: false,
+								},
+								"std_deviations": schema.Float64Attribute{
+									Required: false,
+									Optional: true,
+									Computed: false,
+								},
+								"times_triggered": schema.Float64Attribute{
+									Required: false,
+									Optional: true,
+									Computed: false,
+								},
+							},
+						},
+					},
+				},
 			},
 			"id": schema.StringAttribute{
 				Required:    true,
@@ -363,6 +502,9 @@ func applyMonitorAPIToState(api *MonitorModel, state *MonitorModel, preserveInpu
 		if !api.FiringRule.IsNull() && !api.FiringRule.IsUnknown() {
 			state.FiringRule = api.FiringRule
 		}
+	}
+	if len(state.FiringRule.AttributeTypes(context.Background())) == 0 {
+		state.FiringRule = types.ObjectNull(MonitorFiringRuleAttrTypes())
 	}
 	if !preserveInputs || (fillMissingInputs && (state.ID.IsNull() || state.ID.IsUnknown())) {
 		if !api.ID.IsNull() && !api.ID.IsUnknown() {

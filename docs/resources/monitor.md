@@ -41,19 +41,19 @@ resource "criblio_monitor" "my_monitor" {
     clear_delay = 60
   })
 
-  firing_rule = jsonencode({
+  firing_rule = {
     label = "A"
     threshold = [
       {
-        severity       = "critical"
-        limit          = 90
-        operator       = "gt"
-        includedTags   = []
-        excludedTags   = []
-        timesTriggered = 1
+        severity        = "critical"
+        limit           = 90
+        operator        = "gt"
+        included_tags   = []
+        excluded_tags   = []
+        times_triggered = 1
       }
     ]
-  })
+  }
 
   metadata     = jsonencode({})
   notification = jsonencode({ enabled = false, type = "policy", config = [] })
@@ -69,7 +69,7 @@ resource "criblio_monitor" "my_monitor" {
 - `enabled` (Boolean) Whether the monitor is active and evaluated.
 - `expr` (String) Query expressions evaluated to produce the monitor's series. Use jsonencode([...]).
 - `firing_condition` (String) Condition that determines when the monitor fires. Use jsonencode({ fire_delay = N, clear_delay = M }).
-- `firing_rule` (String) Rule defining firing thresholds and overrides. Use jsonencode({ label = "A", threshold = [...] }).
+- `firing_rule` (Attributes) Rule defining firing thresholds and overrides. Profile-linked inheritance is not supported by this provider yet. (see [below for nested schema](#nestedatt--firing_rule))
 - `id` (String) Unique identifier for the monitor.
 - `metadata` (String) Arbitrary key-value metadata. Use jsonencode({}).
 - `name` (String) Human-readable name for the monitor.
@@ -90,6 +90,51 @@ resource "criblio_monitor" "my_monitor" {
 ### Read-Only
 
 - `managed_by` (String) Stamped 'terraform' by the backend when provisioned via the Terraform provider (cribl/cribl#43133).
+
+<a id="nestedatt--firing_rule"></a>
+### Nested Schema for `firing_rule`
+
+Required:
+
+- `label` (String)
+- `threshold` (Attributes List) (see [below for nested schema](#nestedatt--firing_rule--threshold))
+
+Optional:
+
+- `overrides` (Attributes List) (see [below for nested schema](#nestedatt--firing_rule--overrides))
+- `show_on_chart` (Boolean)
+
+<a id="nestedatt--firing_rule--overrides"></a>
+### Nested Schema for `firing_rule.overrides`
+
+Required:
+
+- `enabled` (Boolean)
+- `excluded_tags` (List of String)
+- `included_tags` (List of String)
+- `name` (String)
+- `threshold` (Attributes List) (see [below for nested schema](#nestedatt--firing_rule--overrides--threshold))
+
+Optional:
+
+- `show_on_chart` (Boolean)
+
+<a id="nestedatt--firing_rule--overrides--threshold"></a>
+<a id="nestedatt--firing_rule--threshold"></a>
+### Nested Schema for `firing_rule.overrides.threshold`
+
+Required:
+
+- `excluded_tags` (List of String)
+- `included_tags` (List of String)
+- `limit` (Number)
+- `severity` (String)
+
+Optional:
+
+- `operator` (String)
+- `std_deviations` (Number)
+- `times_triggered` (Number)
 
 <a id="nestedatt--priority"></a>
 <a id="nestedatt--team"></a>
